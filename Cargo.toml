@@ -1,0 +1,24 @@
+[package]
+name = "kd-tree-comparison"
+version = "0.1.0"
+edition = "2021"
+autobenches = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+az = "1.2.1"
+criterion = "0.4.0"
+fixed = "1.22.0"
+fnntw = "0.2.3"
+kiddo_v1 = { version = "0.2.4", package = "kiddo" }
+kiddo_v2 = { path = "../sok", package = "sok" }
+rand = "0.8.5"
+
+[[bench]]
+name = "add_points_fnntw"
+harness = false
+
+[[bench]]
+name = "nearest_one_fnntw"
+harness = false
