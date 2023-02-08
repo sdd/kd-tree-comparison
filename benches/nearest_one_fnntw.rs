@@ -13,7 +13,7 @@ const QUERY_POINTS_PER_LOOP: usize = 1000;
 
 macro_rules! bench_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
-        bench_query_nearest_one_float::<$k>(&mut $group, $size, QUERY_POINTS_PER_LOOP, $subtype);
+        bench_query_nearest_one_float::<$k>(&mut $group, $size, QUERY_POINTS_PER_LOOP, &format!("FNNTW {}", $subtype));
     };
 }
 

@@ -6,18 +6,18 @@ use criterion::{
 };
 use fixed::types::extra::{Unsigned, U16};
 use fixed::FixedU16;
-use rand::distributions::Standard;
-use rand_distr::Distribution;
-use sok::batch_benches;
-use sok::distance::squared_euclidean;
-use sok::fixed::distance::squared_euclidean as squared_euclidean_fixedpoint;
-use sok::fixed::kdtree::{Axis as AxisFixed, KdTree as KdTreeFixed};
-use sok::float::kdtree::{Axis, KdTree};
-use sok::test_utils::{
+use rand::distributions::{Distribution, Standard};
+
+use kiddo_v2::batch_benches;
+use kiddo_v2::distance::squared_euclidean;
+use kiddo_v2::fixed::distance::squared_euclidean as squared_euclidean_fixedpoint;
+use kiddo_v2::fixed::kdtree::{Axis as AxisFixed, KdTree as KdTreeFixed};
+use kiddo_v2::float::kdtree::{Axis, KdTree};
+use kiddo_v2::test_utils::{
     build_populated_tree_and_query_points_fixed, build_populated_tree_and_query_points_float,
     process_queries_fixed, process_queries_float,
 };
-use sok::types::{Content, Index};
+use kiddo_v2::types::{Content, Index};
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 1000;
@@ -30,7 +30,7 @@ macro_rules! bench_float {
             &mut $group,
             $size,
             QUERY_POINTS_PER_LOOP,
-            $subtype,
+            &format!("Kiddo_v2 {}", $subtype)
         );
     };
 }

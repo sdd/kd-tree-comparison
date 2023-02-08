@@ -12,7 +12,7 @@ const BUCKET_SIZE: usize = 32;
 
 macro_rules! bench_empty_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
-        bench_add_to_empty_float::<$k>(&mut $group, $size, $subtype);
+        bench_add_to_empty_float::<$k>(&mut $group, $size, &format!("FNNTW {}", $subtype));
     };
 }
 

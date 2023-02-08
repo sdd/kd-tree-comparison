@@ -13,12 +13,29 @@ fixed = "1.22.0"
 fnntw = "0.2.3"
 kiddo_v1 = { version = "0.2.4", package = "kiddo" }
 kiddo_v2 = { path = "../sok", package = "sok" }
+num-traits = "0.2.15"
 rand = "0.8.5"
+
+[[bench]]
+name = "add_points"
+harness = false
 
 [[bench]]
 name = "add_points_fnntw"
 harness = false
 
 [[bench]]
+name = "add_points_kiddo_v1"
+harness = false
+
+[[bench]]
+name = "nearest_one"
+harness = false
+
+[[bench]]
 name = "nearest_one_fnntw"
+harness = false
+
+[[bench]]
+name = "nearest_one_kiddo_v1"
 harness = false

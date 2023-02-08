@@ -8,11 +8,11 @@ use fixed::types::extra::{Unsigned, U16};
 use fixed::FixedU16;
 use rand::distributions::{Distribution, Standard};
 
-use sok::batch_benches;
-use sok::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
-use sok::float::kdtree::{Axis, KdTree};
-use sok::test_utils::rand_data_fixed_u16_entry;
-use sok::types::{Content, Index};
+use kiddo_v2::batch_benches;
+use kiddo_v2::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
+use kiddo_v2::float::kdtree::{Axis, KdTree};
+use kiddo_v2::test_utils::rand_data_fixed_u16_entry;
+use kiddo_v2::types::{Content, Index};
 
 const BUCKET_SIZE: usize = 32;
 const QTY_TO_ADD_TO_POPULATED: u64 = 100;
@@ -21,25 +21,25 @@ type FXP = U16; // FixedU16<U16>;
 
 macro_rules! bench_empty_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
-        bench_add_to_empty_float::<$a, $t, $k, $idx>(&mut $group, $size, $subtype);
+        bench_add_to_empty_float::<$a, $t, $k, $idx>(&mut $group, $size, &format!("Kiddo_v2 {}", $subtype));
     };
 }
 
 macro_rules! bench_empty_fixed {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx:ty, $size:tt, $subtype: expr) => {
-        bench_add_to_empty_fixed_u16::<$a, $t, $k, $idx>(&mut $group, $size, $subtype);
+        bench_add_to_empty_fixed_u16::<$a, $t, $k, $idx>(&mut $group, $size, &format!("Kiddo_v2 {}", $subtype));
     };
 }
 
 macro_rules! bench_populated_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
-        bench_add_to_populated_float::<$a, $t, $k, $idx>(&mut $group, $size, $subtype);
+        bench_add_to_populated_float::<$a, $t, $k, $idx>(&mut $group, $size, &format!("Kiddo_v1 {}", $subtype));
     };
 }
 
 macro_rules! bench_populated_fixed {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx:ty, $size:tt, $subtype: expr) => {
-        bench_add_to_populated_fixed_u16::<$a, $t, $k, $idx>(&mut $group, $size, $subtype);
+        bench_add_to_populated_fixed_u16::<$a, $t, $k, $idx>(&mut $group, $size, &format!("Kiddo_v2 {}", $subtype));
     };
 }
 
