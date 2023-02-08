@@ -39,3 +39,31 @@ harness = false
 [[bench]]
 name = "nearest_one_kiddo_v1"
 harness = false
+
+[[bench]]
+name = "nearest_n"
+harness = false
+
+[[bench]]
+name = "nearest_n_fnntw"
+harness = false
+
+[[bench]]
+name = "nearest_n_kiddo_v1"
+harness = false
+
+[[bench]]
+name = "within_unsorted"
+harness = false
+
+[[bench]]
+name = "within_unsorted_kiddo_v1"
+harness = false
+
+[[bench]]
+name = "within"
+harness = false
+
+[[bench]]
+name = "within_kiddo_v1"
+harness = false
