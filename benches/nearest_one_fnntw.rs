@@ -1,15 +1,13 @@
 use criterion::measurement::WallTime;
-use criterion::{
-    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId,
-    Criterion, PlotConfiguration, Throughput,
-};
+use criterion::{black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion, PlotConfiguration, Throughput, BatchSize};
 use kiddo_v2::batch_benches;
 use rand::distributions::{Distribution, Standard};
+use rayon::prelude::*;
 
 use fnntw::Tree;
 
 const BUCKET_SIZE: usize = 32;
-const QUERY_POINTS_PER_LOOP: usize = 1000;
+const QUERY_POINTS_PER_LOOP: usize = 1_000_000;
 
 macro_rules! bench_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
@@ -33,7 +31,8 @@ pub fn nearest_one(c: &mut Criterion) {
             (1_000, u16, u16),
             (10_000, u16, u16),
             (100_000, u32, u16),
-            (1_000_000, u32, u32)
+            (1_000_000, u32, u32),
+            (10_000_000, u32, u32)
         ]
     );
 

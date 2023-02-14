@@ -62,7 +62,7 @@ fn bench_add_to_empty_float<const K: usize>(
                 |points_to_add| {
                     black_box({
                         let tree =
-                            Tree::new(black_box(&points_to_add), black_box(BUCKET_SIZE)).unwrap();
+                            Tree::new_parallel(black_box(&points_to_add), black_box(BUCKET_SIZE), 1).unwrap();
                         drop(tree);
                     })
                 },
