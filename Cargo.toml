@@ -31,6 +31,10 @@ name = "add_points_kiddo_v1"
 harness = false
 
 [[bench]]
+name = "add_points_pykdtree"
+harness = false
+
+[[bench]]
 name = "nearest_one"
 harness = false
 
