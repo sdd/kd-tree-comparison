@@ -1,5 +1,5 @@
 use criterion::measurement::WallTime;
-use criterion::{black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion, PlotConfiguration, Throughput, BatchSize};
+use criterion::{black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion, PlotConfiguration, Throughput};
 use kiddo_v2::batch_benches;
 use rand::distributions::{Distribution, Standard};
 use rayon::prelude::*;

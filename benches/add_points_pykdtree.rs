@@ -1,7 +1,7 @@
 use criterion::measurement::WallTime;
 use criterion::{
-    black_box, criterion_group, criterion_main, AxisScale, BatchSize, BenchmarkGroup, BenchmarkId,
-    Criterion, PlotConfiguration, Throughput,
+    criterion_group, criterion_main, AxisScale, BenchmarkGroup,
+    Criterion, PlotConfiguration,
 };
 use criterion_polyglot::{BenchSpec, CriterionPolyglotExt};
 
