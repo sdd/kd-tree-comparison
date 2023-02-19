@@ -13,7 +13,7 @@ criterion-polyglot = "0.1.0"
 fixed = "1.22.0"
 fnntw = "0.2.3"
 kiddo_v1 = { version = "0.2.4", package = "kiddo" }
-kiddo_v2 = { path = "../sok", package = "sok" }
+kiddo_v2 = { path = "../sok", package = "kiddo" }
 num-traits = "0.2.15"
 rand = "0.8.5"
 rayon = "1.6.1"
