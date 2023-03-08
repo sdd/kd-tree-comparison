@@ -8,8 +8,6 @@ use criterion_polyglot::{BenchSpec, CriterionPolyglotExt};
 use kiddo_v2::batch_benches;
 use rand::distributions::{Distribution, Standard};
 
-const BUCKET_SIZE: usize = 32;
-
 macro_rules! bench_empty_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
         bench_add_to_empty_float::<$k>(&mut $group, $size, &format!("pykdtree {}", $subtype));

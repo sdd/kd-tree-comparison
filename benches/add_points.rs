@@ -214,20 +214,23 @@ fn bench_add_to_empty_fixed_u16<A: Unsigned, T: Content, const K: usize, IDX: In
         |b, &size| {
             b.iter_batched(
                 || {
-                    let mut points_to_add = vec![];
+                    let mut points_to_add = Vec::with_capacity(size);
                     for _ in 0..size {
                         points_to_add.push(rand_data_fixed_u16_entry::<A, T, K>());
                     }
-                    let kdtree = FixedKdTree::<FixedU16<A>, T, K, BUCKET_SIZE, IDX>::with_capacity(
-                        size + points_to_add.len(),
-                    );
 
-                    (kdtree, points_to_add)
-                },
-                |(mut kdtree, points_to_add)| {
                     points_to_add
-                        .iter()
-                        .for_each(|point| black_box(kdtree.add(black_box(&point.0), point.1)))
+                },
+                |points_to_add| {
+                    black_box({
+                        let mut kdtree = FixedKdTree::<FixedU16<A>, T, K, BUCKET_SIZE, IDX>::with_capacity(
+                          size
+                        );
+
+                        points_to_add
+                          .iter()
+                          .for_each(|point| black_box(kdtree.add(black_box(&point.0), point.1)))
+                    });
                 },
                 BatchSize::SmallInput,
             );

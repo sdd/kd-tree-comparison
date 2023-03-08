@@ -8,7 +8,7 @@ autobenches = false
 
 [dependencies]
 az = "1.2.1"
-criterion = "0.4.0"
+criterion = "0.4"
 criterion-polyglot = "0.1.0"
 fixed = "1.22.0"
 fnntw = "0.2.3"
