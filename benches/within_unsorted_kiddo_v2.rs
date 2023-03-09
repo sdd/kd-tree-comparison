@@ -14,7 +14,8 @@ use kiddo_v2::fixed::distance::squared_euclidean as squared_euclidean_fixedpoint
 use kiddo_v2::fixed::kdtree::{Axis as AxisFixed, KdTree as KdTreeFixed};
 use kiddo_v2::float::kdtree::{Axis, KdTree};
 use kiddo_v2::test_utils::{
-    build_populated_tree_and_query_points_fixed, build_populated_tree_and_query_points_float, process_queries_fixed_parameterized, process_queries_float_parameterized
+    build_populated_tree_and_query_points_fixed, build_populated_tree_and_query_points_float,
+    process_queries_fixed_parameterized, process_queries_float_parameterized,
 };
 use kiddo_v2::types::{Content, Index};
 
@@ -28,13 +29,23 @@ type FXP = U16; // FixedU16<U16>;
 
 macro_rules! bench_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $radius:tt,  $subtype: expr) => {
-        bench_query_float::<$a, $t, $k, $idx>(&mut $group, $size, $radius, $subtype);
+        bench_query_float::<$a, $t, $k, $idx>(
+            &mut $group,
+            $size,
+            $radius,
+            &format!("Kiddo_v2 {}", $subtype),
+        );
     };
 }
 
 macro_rules! bench_fixed {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx:ty, $size:tt, $radius:tt, $subtype: expr) => {
-        bench_query_fixed::<$a, $t, $k, $idx>(&mut $group, $size, $radius, $subtype);
+        bench_query_fixed::<$a, $t, $k, $idx>(
+            &mut $group,
+            $size,
+            $radius,
+            &format!("Kiddo_v2 {}", $subtype),
+        );
     };
 }
 

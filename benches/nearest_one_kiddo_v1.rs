@@ -4,14 +4,14 @@ use criterion::{
     Criterion, PlotConfiguration, Throughput,
 };
 
-use kiddo_v1::{KdTree, distance::squared_euclidean};
+use kiddo_v1::{distance::squared_euclidean, KdTree};
 
 use kiddo_v2::batch_benches;
 use num_traits::Float;
 use rand::distributions::{Distribution, Standard};
 
 const BUCKET_SIZE: usize = 32;
-const QUERY_POINTS_PER_LOOP: usize = 1000;
+const QUERY_POINTS_PER_LOOP: usize = 1_000;
 
 macro_rules! bench_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
@@ -19,7 +19,7 @@ macro_rules! bench_float {
             &mut $group,
             $size,
             QUERY_POINTS_PER_LOOP,
-            &format!("Kiddo_v1 {}", $subtype)
+            &format!("Kiddo_v1 {}", $subtype),
         );
     };
 }
@@ -47,15 +47,14 @@ pub fn nearest_one(c: &mut Criterion) {
     group.finish();
 }
 
-
 fn bench_query_nearest_one_float<A: Float, const K: usize>(
     group: &mut BenchmarkGroup<WallTime>,
     initial_size: usize,
     query_point_qty: usize,
     subtype: &str,
 ) where
-Standard: Distribution<([A; K], u32)>,
-Standard: Distribution<[A; K]>,
+    Standard: Distribution<([A; K], u32)>,
+    Standard: Distribution<[A; K]>,
 {
     group.bench_with_input(
         BenchmarkId::new(subtype, initial_size),
@@ -67,29 +66,27 @@ Standard: Distribution<[A; K]>,
                     for _ in 0..size {
                         initial_points.push(rand::random::<([A; K], u32)>());
                     }
-                    let mut kdtree = KdTree::<A, u32, K>::with_per_node_capacity(
-                        BUCKET_SIZE
-                    ).unwrap();
+                    let mut kdtree =
+                        KdTree::<A, u32, K>::with_per_node_capacity(BUCKET_SIZE).unwrap();
 
                     for i in 0..initial_points.len() {
-                        kdtree.add(&initial_points[i].0, initial_points[i].1).unwrap();
+                        kdtree
+                            .add(&initial_points[i].0, initial_points[i].1)
+                            .unwrap();
                     }
 
                     let query_points: Vec<_> = (0..query_point_qty)
-                    .into_iter()
-                    .map(|_| rand::random::<[A; K]>())
-                    .collect();
+                        .into_iter()
+                        .map(|_| rand::random::<[A; K]>())
+                        .collect();
 
                     (kdtree, query_points)
                 },
                 |(kdtree, query_points)| {
-                    black_box(
-                        query_points
-                            .iter()
-                            .for_each(|point| {
-                                let _res = black_box(kdtree.nearest_one(&point, &squared_euclidean).unwrap());
-                            }),
-                    )
+                    black_box(query_points.iter().for_each(|point| {
+                        let _res =
+                            black_box(kdtree.nearest_one(&point, &squared_euclidean).unwrap());
+                    }))
                 },
                 BatchSize::SmallInput,
             );

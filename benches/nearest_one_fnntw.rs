@@ -1,5 +1,8 @@
 use criterion::measurement::WallTime;
-use criterion::{black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion, PlotConfiguration, Throughput};
+use criterion::{
+    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
+    PlotConfiguration, Throughput,
+};
 use kiddo_v2::batch_benches;
 use rand::distributions::{Distribution, Standard};
 use rayon::prelude::*;
@@ -7,11 +10,16 @@ use rayon::prelude::*;
 use fnntw::Tree;
 
 const BUCKET_SIZE: usize = 32;
-const QUERY_POINTS_PER_LOOP: usize = 1_000_000;
+const QUERY_POINTS_PER_LOOP: usize = 1_000;
 
 macro_rules! bench_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
-        bench_query_nearest_one_float::<$k>(&mut $group, $size, QUERY_POINTS_PER_LOOP, &format!("FNNTW {}", $subtype));
+        bench_query_nearest_one_float::<$k>(
+            &mut $group,
+            $size,
+            QUERY_POINTS_PER_LOOP,
+            &format!("FNNTW {}", $subtype),
+        );
     };
 }
 
@@ -59,18 +67,13 @@ fn bench_query_nearest_one_float<'a, const K: usize>(
         .map(|_| rand::random::<[f64; K]>())
         .collect();
 
-    group.bench_function(
-        BenchmarkId::new(subtype, initial_size),
-        |b| {
-            b.iter(|| {
-                query_points
-                    .par_iter()
-                    .for_each(|point| {
-                        black_box(tree.query_nearest(&point).unwrap());
-                    });
+    group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
+        b.iter(|| {
+            query_points.par_iter().for_each(|point| {
+                black_box(tree.query_nearest(&point).unwrap());
             });
-        },
-    );
+        });
+    });
 }
 
 /*fn bench_query_nearest_one_float_2<'a, const K: usize>(

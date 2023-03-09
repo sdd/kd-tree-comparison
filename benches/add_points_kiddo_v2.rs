@@ -21,25 +21,41 @@ type FXP = U16; // FixedU16<U16>;
 
 macro_rules! bench_empty_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
-        bench_add_to_empty_float::<$a, $t, $k, $idx>(&mut $group, $size, &format!("Kiddo_v2 {}", $subtype));
+        bench_add_to_empty_float::<$a, $t, $k, $idx>(
+            &mut $group,
+            $size,
+            &format!("Kiddo_v2 {}", $subtype),
+        );
     };
 }
 
 macro_rules! bench_empty_fixed {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx:ty, $size:tt, $subtype: expr) => {
-        bench_add_to_empty_fixed_u16::<$a, $t, $k, $idx>(&mut $group, $size, &format!("Kiddo_v2 {}", $subtype));
+        bench_add_to_empty_fixed_u16::<$a, $t, $k, $idx>(
+            &mut $group,
+            $size,
+            &format!("Kiddo_v2 {}", $subtype),
+        );
     };
 }
 
 macro_rules! bench_populated_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
-        bench_add_to_populated_float::<$a, $t, $k, $idx>(&mut $group, $size, &format!("Kiddo_v1 {}", $subtype));
+        bench_add_to_populated_float::<$a, $t, $k, $idx>(
+            &mut $group,
+            $size,
+            &format!("Kiddo_v1 {}", $subtype),
+        );
     };
 }
 
 macro_rules! bench_populated_fixed {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx:ty, $size:tt, $subtype: expr) => {
-        bench_add_to_populated_fixed_u16::<$a, $t, $k, $idx>(&mut $group, $size, &format!("Kiddo_v2 {}", $subtype));
+        bench_add_to_populated_fixed_u16::<$a, $t, $k, $idx>(
+            &mut $group,
+            $size,
+            &format!("Kiddo_v2 {}", $subtype),
+        );
     };
 }
 
@@ -223,13 +239,12 @@ fn bench_add_to_empty_fixed_u16<A: Unsigned, T: Content, const K: usize, IDX: In
                 },
                 |points_to_add| {
                     black_box({
-                        let mut kdtree = FixedKdTree::<FixedU16<A>, T, K, BUCKET_SIZE, IDX>::with_capacity(
-                          size
-                        );
+                        let mut kdtree =
+                            FixedKdTree::<FixedU16<A>, T, K, BUCKET_SIZE, IDX>::with_capacity(size);
 
                         points_to_add
-                          .iter()
-                          .for_each(|point| black_box(kdtree.add(black_box(&point.0), point.1)))
+                            .iter()
+                            .for_each(|point| black_box(kdtree.add(black_box(&point.0), point.1)))
                     });
                 },
                 BatchSize::SmallInput,

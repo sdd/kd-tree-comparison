@@ -21,7 +21,11 @@ macro_rules! bench_empty_float {
 
 macro_rules! bench_populated_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
-        bench_add_to_populated_float::<$a, $k>(&mut $group, $size, &format!("Kiddo_v1 {}", $subtype));
+        bench_add_to_populated_float::<$a, $k>(
+            &mut $group,
+            $size,
+            &format!("Kiddo_v1 {}", $subtype),
+        );
     };
 }
 
@@ -90,8 +94,7 @@ fn bench_add_to_empty_float<A: Float, const K: usize>(
                         .map(|_| rand::random::<([A; K], u32)>())
                         .collect();
 
-                    let kdtree =
-                        KdTree::<A, u32, K>::with_per_node_capacity(BUCKET_SIZE).unwrap();
+                    let kdtree = KdTree::<A, u32, K>::with_per_node_capacity(BUCKET_SIZE).unwrap();
 
                     (kdtree, points_to_add)
                 },
@@ -130,12 +133,13 @@ fn bench_add_to_populated_float<A: Float, const K: usize>(
                     for _ in 0..size {
                         initial_points.push(rand::random::<([A; K], u32)>());
                     }
-                    let mut kdtree = KdTree::<A, u32, K>::with_per_node_capacity(
-                        BUCKET_SIZE
-                    ).unwrap();
+                    let mut kdtree =
+                        KdTree::<A, u32, K>::with_per_node_capacity(BUCKET_SIZE).unwrap();
 
                     for i in 0..initial_points.len() {
-                        kdtree.add(&initial_points[i].0, initial_points[i].1).unwrap();
+                        kdtree
+                            .add(&initial_points[i].0, initial_points[i].1)
+                            .unwrap();
                     }
 
                     (kdtree, points_to_add)

@@ -5,7 +5,7 @@ use criterion::{
     Criterion, PlotConfiguration, Throughput,
 };
 
-use kiddo_v1::{KdTree, distance::squared_euclidean};
+use kiddo_v1::{distance::squared_euclidean, KdTree};
 
 use kiddo_v2::batch_benches_parameterized;
 use num_traits::Float;
@@ -19,7 +19,12 @@ const RADIUS_LARGE: f64 = 0.25;
 
 macro_rules! bench_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $radius:tt,  $subtype: expr) => {
-        bench_query_float::<$a, $k>(&mut $group, $size, $radius, &format!("Kiddo_v1 {}", $subtype));
+        bench_query_float::<$a, $k>(
+            &mut $group,
+            $size,
+            $radius,
+            &format!("Kiddo_v1 {}", $subtype),
+        );
     };
 }
 
@@ -59,11 +64,7 @@ fn within_unsorted(c: &mut Criterion, radius: f64, radius_name: &str) {
     group.finish();
 }
 
-fn bench_query_float<
-    'a,
-    A: Float,
-    const K: usize,
->(
+fn bench_query_float<'a, A: Float, const K: usize>(
     group: &'a mut BenchmarkGroup<WallTime>,
     initial_size: usize,
     radius: f64,
@@ -82,36 +83,36 @@ fn bench_query_float<
                     for _ in 0..size {
                         initial_points.push(rand::random::<([A; K], u32)>());
                     }
-                    let mut kdtree = KdTree::<A, u32, K>::with_per_node_capacity(
-                        BUCKET_SIZE
-                    ).unwrap();
+                    let mut kdtree =
+                        KdTree::<A, u32, K>::with_per_node_capacity(BUCKET_SIZE).unwrap();
 
                     for i in 0..initial_points.len() {
-                        kdtree.add(&initial_points[i].0, initial_points[i].1).unwrap();
+                        kdtree
+                            .add(&initial_points[i].0, initial_points[i].1)
+                            .unwrap();
                     }
 
                     let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
-                    .into_iter()
-                    .map(|_| rand::random::<[A; K]>())
-                    .collect();
+                        .into_iter()
+                        .map(|_| rand::random::<[A; K]>())
+                        .collect();
 
                     (kdtree, query_points)
                 },
                 |(kdtree, query_points)| {
-                    black_box(
-                        query_points
-                            .iter()
-                            .for_each(|point| {
-                                let _res = black_box(kdtree.within_unsorted(&point, radius.az::<A>(), &squared_euclidean).unwrap());
-                            }),
-                    )
+                    black_box(query_points.iter().for_each(|point| {
+                        let _res = black_box(
+                            kdtree
+                                .within_unsorted(&point, radius.az::<A>(), &squared_euclidean)
+                                .unwrap(),
+                        );
+                    }))
                 },
                 BatchSize::SmallInput,
             );
-        }
+        },
     );
 }
-
 
 criterion_group!(
     benches,
