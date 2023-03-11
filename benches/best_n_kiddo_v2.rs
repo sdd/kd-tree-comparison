@@ -93,7 +93,7 @@ fn perform_query_float_10<
     f64: Cast<A>,
 {
     kdtree
-        .best_n_within_into_iter(&point, 0.05f64.az::<A>(), 10, &squared_euclidean)
+        .best_n_within(&point, 0.05f64.az::<A>(), 10, &squared_euclidean)
         .for_each(|res_item| {
             black_box({
                 let _x = res_item;
@@ -116,7 +116,7 @@ fn perform_query_fixed_10<
     A: LeEqU16,
 {
     kdtree
-        .best_n_within_into_iter(
+        .best_n_within(
             &point,
             FixedU16::<A>::from_num(0.05f64),
             10,

@@ -106,9 +106,9 @@ fn bench_query_float<'a, A: Float, const K: usize>(
                                 .best_n_within_into_iter(
                                     &point,
                                     radius.az::<A>(),
+                                    10,
                                     &squared_euclidean,
-                                )
-                                .unwrap(),
+                                ),
                         );
                     }))
                 },
