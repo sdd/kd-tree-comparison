@@ -9,15 +9,12 @@ use fixed::FixedU16;
 use rand::distributions::{Distribution, Standard};
 use rayon::prelude::*;
 
-
 use kiddo_v2::batch_benches;
 use kiddo_v2::distance::squared_euclidean;
 use kiddo_v2::fixed::distance::squared_euclidean as squared_euclidean_fixedpoint;
 use kiddo_v2::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
 use kiddo_v2::float::kdtree::{Axis, KdTree};
-use kiddo_v2::test_utils::{
-    rand_data_fixed_u16_point, rand_data_fixed_u16_entry,
-};
+use kiddo_v2::test_utils::{rand_data_fixed_u16_entry, rand_data_fixed_u16_point};
 use kiddo_v2::types::{Content, Index};
 
 const BUCKET_SIZE: usize = 32;
@@ -98,13 +95,12 @@ fn bench_query_nearest_one_float<
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
 {
-    let mut kdtree =
-        KdTree::<A, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
+    let mut kdtree = KdTree::<A, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
 
     for _ in 0..initial_size {
         let point = rand::random::<([A; K], T)>();
         kdtree.add(&point.0, point.1);
-    };
+    }
 
     let query_points: Vec<_> = (0..query_point_qty)
         .into_iter()
@@ -136,7 +132,8 @@ fn bench_query_nearest_one_fixed<
     Standard: Distribution<T>,
     FixedU16<A>: AxisFixed,
 {
-    let mut kdtree = FixedKdTree::<FixedU16<A>, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
+    let mut kdtree =
+        FixedKdTree::<FixedU16<A>, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
 
     for _ in 0..initial_size {
         let entry = rand_data_fixed_u16_entry::<A, T, K>();

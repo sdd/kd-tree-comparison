@@ -52,16 +52,12 @@ fn bench_add_to_empty_float<const K: usize>(
         &qty_to_add,
         |b, &size| {
             b.iter_batched(
-                || {
-                    random_point_cloud(size as u32)
-                },
+                || random_point_cloud(size as u32),
                 |points_to_add| {
-                    black_box(
-                        KDTree::new_with_bucket_size(
-                            black_box(&points_to_add),
-                            black_box(BUCKET_SIZE)
-                        )
-                    )
+                    black_box(KDTree::new_with_bucket_size(
+                        black_box(&points_to_add),
+                        black_box(BUCKET_SIZE),
+                    ))
                 },
                 BatchSize::SmallInput,
             );

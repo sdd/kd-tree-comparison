@@ -76,46 +76,5 @@ fn bench_query_nearest_one_float<'a, const K: usize>(
     });
 }
 
-/*fn bench_query_nearest_one_float_2<'a, const K: usize>(
-    group: &'a mut BenchmarkGroup<WallTime>,
-    initial_size: usize,
-    query_point_qty: usize,
-    subtype: &str,
-) where
-    Standard: Distribution<[f64; K]>,
-{
-    let mut points_to_add: Vec<[f64; K]> = vec![];
-    let mut tree = Tree::new(&points_to_add, BUCKET_SIZE).unwrap();
-    let mut query_points: Vec<_> = vec![];
-
-    group.bench_with_input(
-        BenchmarkId::new(subtype, initial_size),
-        &initial_size,
-        |b, &size| {
-            b.iter_batched(
-                || {
-                    points_to_add = (0..size)
-                        .into_iter()
-                        .map(|_| rand::random::<[f64; K]>())
-                        .collect();
-
-                    tree = Tree::new(black_box(&points_to_add), BUCKET_SIZE).unwrap();
-
-                    query_points = (0..query_point_qty)
-                        .into_iter()
-                        .map(|_| rand::random::<[f64; K]>())
-                        .collect();
-                },
-                |()| {
-                    for point in &query_points {
-                        black_box(tree.query_nearest(&point).unwrap());
-                    }
-                },
-                BatchSize::SmallInput,
-            );
-        },
-    );
-}*/
-
 criterion_group!(benches, nearest_one);
 criterion_main!(benches);
