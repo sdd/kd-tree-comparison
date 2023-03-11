@@ -9,18 +9,15 @@ autobenches = false
 [dependencies]
 az = "1.2.1"
 criterion = "0.4"
-criterion-polyglot = "0.1.0"
-fixed = "1.22.0"
+criterion-polyglot = "0.1"
+fixed = "1.22"
 fnntw = "0.2"
 kiddo_v1 = { version = "0.2", package = "kiddo" }
 kiddo_v2 = { path = "../sok", package = "kiddo" }
+nabo = "0.2"
 num-traits = "0.2.15"
 rand = "0.8.5"
 rayon = "1.6.1"
-
-[[bench]]
-name = "add_points_kiddo_v2"
-harness = false
 
 [[bench]]
 name = "add_points_fnntw"
@@ -31,7 +28,23 @@ name = "add_points_kiddo_v1"
 harness = false
 
 [[bench]]
+name = "add_points_kiddo_v2"
+harness = false
+
+[[bench]]
+name = "add_points_nabo"
+harness = false
+
+[[bench]]
 name = "add_points_pykdtree"
+harness = false
+
+[[bench]]
+name = "add_points_scipy"
+harness = false
+
+[[bench]]
+name = "add_points_sklearn"
 harness = false
 
 [[bench]]
@@ -54,9 +67,20 @@ harness = false
 name = "nearest_one_kiddo_v1"
 harness = false
 
+[[bench]]
+name = "nearest_one_nabo"
+harness = false
 
 [[bench]]
 name = "nearest_one_pykdtree"
+harness = false
+
+[[bench]]
+name = "nearest_one_sklearn"
+harness = false
+
+[[bench]]
+name = "nearest_one_scipy"
 harness = false
 
 [[bench]]
@@ -72,7 +96,19 @@ name = "nearest_n_kiddo_v1"
 harness = false
 
 [[bench]]
+name = "nearest_n_nabo"
+harness = false
+
+[[bench]]
 name = "nearest_n_pykdtree"
+harness = false
+
+[[bench]]
+name = "nearest_n_sklearn"
+harness = false
+
+[[bench]]
+name = "nearest_n_scipy"
 harness = false
 
 [[bench]]
