@@ -115,11 +115,6 @@ fn perform_query_float<
     black_box({
         let _res = black_box(kdtree.within_unsorted(&point, radius.az::<A>(), &squared_euclidean));
     });
-    // .for_each(|res_item| {
-    //     black_box({
-    //         let _x = res_item;
-    //     });
-    // })
 }
 
 fn perform_query_fixed<
@@ -144,11 +139,6 @@ fn perform_query_fixed<
             &squared_euclidean_fixedpoint,
         ));
     });
-    // .for_each(|res_item| {
-    //     black_box({
-    //         let _x = res_item;
-    //     });
-    // })
 }
 
 fn bench_query_float<

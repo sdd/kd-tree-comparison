@@ -101,15 +101,12 @@ fn bench_query_float<'a, A: Float, const K: usize>(
                 },
                 |(kdtree, query_points)| {
                     black_box(query_points.iter().for_each(|point| {
-                        let _res = black_box(
-                            kdtree
-                                .best_n_within_into_iter(
-                                    &point,
-                                    radius.az::<A>(),
-                                    10,
-                                    &squared_euclidean,
-                                ),
-                        );
+                        let _res = black_box(kdtree.best_n_within_into_iter(
+                            &point,
+                            radius.az::<A>(),
+                            10,
+                            &squared_euclidean,
+                        ));
                     }))
                 },
                 BatchSize::SmallInput,

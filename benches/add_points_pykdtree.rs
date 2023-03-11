@@ -33,15 +33,6 @@ pub fn add_to_empty(c: &mut Criterion) {
         ]
     );
 
-    /*batch_benches!(
-        group,
-        bench_empty_float,
-        [(f64, 3)],
-        [
-            (100_000, u32, u16)
-        ]
-    );*/
-
     group.finish();
 }
 

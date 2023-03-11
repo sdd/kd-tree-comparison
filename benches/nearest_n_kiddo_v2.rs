@@ -1,8 +1,8 @@
 use az::Cast;
 use criterion::measurement::WallTime;
 use criterion::{
-    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId,
-    Criterion, PlotConfiguration, Throughput,
+    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
+    PlotConfiguration, Throughput,
 };
 use fixed::types::extra::{Unsigned, U16};
 use fixed::FixedU16;
@@ -92,13 +92,12 @@ fn bench_query_nearest_n_float_10<
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
 {
-    let mut kdtree =
-        KdTree::<A, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
+    let mut kdtree = KdTree::<A, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
 
     for _ in 0..initial_size {
         let point = rand::random::<([A; K], T)>();
         kdtree.add(&point.0, point.1);
-    };
+    }
 
     let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
         .into_iter()
@@ -108,13 +107,10 @@ fn bench_query_nearest_n_float_10<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(kdtree.nearest_n(point, 10, &squared_euclidean)
-                              .collect::<Vec<_>>()
-                    // .for_each(|res_item| {
-                    //     black_box({
-                    //         let _x = res_item;
-                    //     });
-                    // })
+                black_box(
+                    kdtree
+                        .nearest_n(point, 10, &squared_euclidean)
+                        .collect::<Vec<_>>(),
                 );
             });
         });
@@ -136,7 +132,8 @@ fn bench_query_nearest_n_fixed_10<
     Standard: Distribution<T>,
     FixedU16<A>: AxisFixed,
 {
-    let mut kdtree = FixedKdTree::<FixedU16<A>, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
+    let mut kdtree =
+        FixedKdTree::<FixedU16<A>, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
 
     for _ in 0..initial_size {
         let entry = rand_data_fixed_u16_entry::<A, T, K>();
@@ -151,13 +148,10 @@ fn bench_query_nearest_n_fixed_10<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(kdtree.nearest_n(point, 10, &squared_euclidean_fixedpoint)
-                    .collect::<Vec<_>>()
-                    // .for_each(|res_item| {
-                    //     black_box({
-                    //         let _x = res_item;
-                    //     });
-                    // })
+                black_box(
+                    kdtree
+                        .nearest_n(point, 10, &squared_euclidean_fixedpoint)
+                        .collect::<Vec<_>>(),
                 );
             });
         });
@@ -234,13 +228,12 @@ fn bench_query_nearest_n_float_100<
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
 {
-    let mut kdtree =
-        KdTree::<A, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
+    let mut kdtree = KdTree::<A, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
 
     for _ in 0..initial_size {
         let point = rand::random::<([A; K], T)>();
         kdtree.add(&point.0, point.1);
-    };
+    }
 
     let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
         .into_iter()
@@ -250,12 +243,14 @@ fn bench_query_nearest_n_float_100<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(kdtree.nearest_n(point, 100, &squared_euclidean)
-                    .for_each(|res_item| {
-                        black_box({
-                            let _x = res_item;
-                        });
-                    })
+                black_box(
+                    kdtree
+                        .nearest_n(point, 100, &squared_euclidean)
+                        .for_each(|res_item| {
+                            black_box({
+                                let _x = res_item;
+                            });
+                        }),
                 );
             });
         });
@@ -277,7 +272,8 @@ fn bench_query_nearest_n_fixed_100<
     Standard: Distribution<T>,
     FixedU16<A>: AxisFixed,
 {
-    let mut kdtree = FixedKdTree::<FixedU16<A>, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
+    let mut kdtree =
+        FixedKdTree::<FixedU16<A>, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
 
     for _ in 0..initial_size {
         let entry = rand_data_fixed_u16_entry::<A, T, K>();
@@ -292,12 +288,14 @@ fn bench_query_nearest_n_fixed_100<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(kdtree.nearest_n(point, 100, &squared_euclidean_fixedpoint)
-                    .for_each(|res_item| {
-                        black_box({
-                            let _x = res_item;
-                        });
-                    })
+                black_box(
+                    kdtree
+                        .nearest_n(point, 100, &squared_euclidean_fixedpoint)
+                        .for_each(|res_item| {
+                            black_box({
+                                let _x = res_item;
+                            });
+                        }),
                 );
             });
         });
