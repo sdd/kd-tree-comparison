@@ -125,6 +125,14 @@ name = "within_unsorted_nabo"
 harness = false
 
 [[bench]]
+name = "within_unsorted_scipy"
+harness = false
+
+[[bench]]
+name = "within_unsorted_sklearn"
+harness = false
+
+[[bench]]
 name = "within_kiddo_v2"
 harness = false
 
@@ -134,4 +142,13 @@ harness = false
 
 [[bench]]
 name = "within_nabo"
+harness = false
+
+[[bench]]
+name = "within_scipy"
+harness = false
+
+
+[[bench]]
+name = "within_sklearn"
 harness = false
