@@ -121,9 +121,17 @@ name = "within_unsorted_kiddo_v1"
 harness = false
 
 [[bench]]
+name = "within_unsorted_nabo"
+harness = false
+
+[[bench]]
 name = "within_kiddo_v2"
 harness = false
 
 [[bench]]
 name = "within_kiddo_v1"
+harness = false
+
+[[bench]]
+name = "within_nabo"
 harness = false
