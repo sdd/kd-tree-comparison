@@ -1,7 +1,7 @@
 use criterion::measurement::WallTime;
 use criterion::{
-    black_box, criterion_group, criterion_main, AxisScale, BatchSize, BenchmarkGroup, BenchmarkId,
-    Criterion, PlotConfiguration,
+    AxisScale, BatchSize, BenchmarkGroup, BenchmarkId, black_box, Criterion, criterion_group,
+    criterion_main, PlotConfiguration,
 };
 use kiddo_v2::batch_benches;
 use rand::distributions::{Distribution, Standard};
@@ -32,7 +32,8 @@ pub fn add_to_empty(c: &mut Criterion) {
             (1_000, u16, u16),
             (10_000, u16, u16),
             (100_000, u32, u16),
-            (1_000_000, u32, u32)
+            (1_000_000, u32, u32),
+            (10_000_000, u32, u32)
         ]
     );
 

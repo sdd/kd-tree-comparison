@@ -24,6 +24,17 @@ macro_rules! bench_float_10 {
     };
 }
 
+macro_rules! bench_float_100 {
+    ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
+        bench_query_nearest_100_float::<$a, $k>(
+            &mut $group,
+            $size,
+            QUERY_POINTS_PER_LOOP,
+            &format!("Kiddo_v1 {}", $subtype),
+        );
+    };
+}
+
 pub fn nearest_10(c: &mut Criterion) {
     let mut group = c.benchmark_group("Query Nearest 10");
     group.throughput(Throughput::Elements(QUERY_POINTS_PER_LOOP as u64));
@@ -34,13 +45,38 @@ pub fn nearest_10(c: &mut Criterion) {
     batch_benches!(
         group,
         bench_float_10,
-        [(f64, 2), (f64, 3), (f64, 4), (f32, 3)],
+        [(f32, 2), (f64, 2), (f32, 3), (f64, 3), (f32, 4), (f64, 4)],
         [
             (100, u16, u16),
             (1_000, u16, u16),
             (10_000, u16, u16),
             (100_000, u32, u16),
-            (1_000_000, u32, u32)
+            (1_000_000, u32, u32),
+            (10_000_000, u32, u32)
+        ]
+    );
+
+    group.finish();
+}
+
+pub fn nearest_100(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Query Nearest 100");
+    group.throughput(Throughput::Elements(QUERY_POINTS_PER_LOOP as u64));
+
+    let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
+    group.plot_config(plot_config);
+
+    batch_benches!(
+        group,
+        bench_float_100,
+        [(f32, 2), (f64, 2), (f32, 3), (f64, 3), (f32, 4), (f64, 4)],
+        [
+            (100, u16, u16),
+            (1_000, u16, u16),
+            (10_000, u16, u16),
+            (100_000, u32, u16),
+            (1_000_000, u32, u32),
+            (10_000_000, u32, u32)
         ]
     );
 
@@ -94,5 +130,52 @@ fn bench_query_nearest_10_float<A: Float, const K: usize>(
     );
 }
 
-criterion_group!(benches, nearest_10);
+fn bench_query_nearest_100_float<A: Float, const K: usize>(
+    group: &mut BenchmarkGroup<WallTime>,
+    initial_size: usize,
+    query_point_qty: usize,
+    subtype: &str,
+) where
+    Standard: Distribution<([A; K], u32)>,
+    Standard: Distribution<[A; K]>,
+{
+    group.bench_with_input(
+        BenchmarkId::new(subtype, initial_size),
+        &initial_size,
+        |b, &size| {
+            b.iter_batched(
+                || {
+                    let mut initial_points = vec![];
+                    for _ in 0..size {
+                        initial_points.push(rand::random::<([A; K], u32)>());
+                    }
+                    let mut kdtree =
+                        KdTree::<A, u32, K>::with_per_node_capacity(BUCKET_SIZE).unwrap();
+
+                    for i in 0..initial_points.len() {
+                        kdtree
+                            .add(&initial_points[i].0, initial_points[i].1)
+                            .unwrap();
+                    }
+
+                    let query_points: Vec<_> = (0..query_point_qty)
+                        .into_iter()
+                        .map(|_| rand::random::<[A; K]>())
+                        .collect();
+
+                    (kdtree, query_points)
+                },
+                |(kdtree, query_points)| {
+                    black_box(query_points.iter().for_each(|point| {
+                        let _res =
+                            black_box(kdtree.nearest(&point, 100, &squared_euclidean).unwrap());
+                    }))
+                },
+                BatchSize::SmallInput,
+            );
+        },
+    );
+}
+
+criterion_group!(benches, nearest_10, nearest_100);
 criterion_main!(benches);
