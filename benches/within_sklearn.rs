@@ -11,7 +11,6 @@ use rand::distributions::{Distribution, Standard};
 
 const QUERY_POINTS_PER_LOOP: usize = 100;
 const RADIUS: f64 = 0.01;
-const MAX_RESULTS: u32 = 32000;
 
 fn rust_float_to_py(rust_float_type_name: &str) -> String {
     format!("np.float{}", rust_float_type_name[rust_float_type_name.len()-2..].to_owned())
@@ -28,7 +27,7 @@ macro_rules! bench_float {
     };
 }
 
-pub fn nearest(c: &mut Criterion) {
+pub fn within(c: &mut Criterion) {
     let mut group = c.benchmark_group("Query within radius");
     group.throughput(Throughput::Elements(QUERY_POINTS_PER_LOOP as u64));
 
@@ -37,7 +36,7 @@ pub fn nearest(c: &mut Criterion) {
 
     batch_benches!(
         group,
-        bench_float_10,
+        bench_float,
         [(f32, 2), (f32, 3), (f32, 4), (f64, 2), (f64, 3), (f64, 4)],
         [
             (100, u16, u16),
@@ -63,11 +62,12 @@ fn bench_query_float<A: Float, const K: usize>(
 
     group.python_benchmark(
         &*format!("{}/{}", &subtype, &initial_size),
-        BenchSpec::new(
+        BenchSpec::new(&*format!(
             r#"
 dist, idx = kd_tree.query_radius(query_pts, r={}, sort_results=True)
         "#,
-        )
+        RADIUS.sqrt(),
+        ))
         .with_global_init(&*format!(
             r#"
 from sklearn.neighbors import KDTree
@@ -78,10 +78,10 @@ query_pts = np.random.rand({}, {}).astype({})
 
 kd_tree = KDTree(data_pts)
         "#,
-           RADIUS.sqrt(), &initial_size, K, rust_float_to_py(std::any::type_name::<A>()), &query_point_qty, K, rust_float_to_py(std::any::type_name::<A>())
+           &initial_size, K, rust_float_to_py(std::any::type_name::<A>()), &query_point_qty, K, rust_float_to_py(std::any::type_name::<A>())
         )),
     );
 }
 
-criterion_group!(benches, nearest);
+criterion_group!(benches, within);
 criterion_main!(benches);

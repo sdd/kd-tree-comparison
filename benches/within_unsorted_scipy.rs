@@ -11,7 +11,6 @@ use rand::distributions::{Distribution, Standard};
 
 const QUERY_POINTS_PER_LOOP: usize = 100;
 const RADIUS: f64 = 0.01;
-const MAX_RESULTS: u32 = 32000;
 
 fn rust_float_to_py(rust_float_type_name: &str) -> String {
     format!("np.float{}", rust_float_type_name[rust_float_type_name.len()-2..].to_owned())
