@@ -51,7 +51,7 @@ fn within(c: &mut Criterion, radius: f64, radius_name: &str) {
         group,
         bench_float,
         radius,
-        [(f64, 2), (f64, 3), (f64, 4), (f32, 3)],
+        [(f32, 2), (f64, 2), (f32, 3), (f64, 3), (f32, 4), (f64, 4)],
         [
             (100, u16, u16),
             (1_000, u16, u16),

@@ -54,7 +54,7 @@ pub fn best_10(c: &mut Criterion) {
     batch_benches!(
         group,
         bench_float_10,
-        [(f64, 2), (f64, 3), (f64, 4), (f32, 3)],
+        [(f32, 2), (f64, 2), (f32, 3), (f64, 3), (f32, 4), (f64, 4)],
         [
             (100, u16, u16),
             (1_000, u16, u16),
@@ -66,7 +66,7 @@ pub fn best_10(c: &mut Criterion) {
     batch_benches!(
         group,
         bench_fixed_10,
-        [(FXP, 3)],
+        [(FXP, 2), (FXP, 3), (FXP, 4)],
         [
             (100, u16, u16),
             (1_000, u16, u16),

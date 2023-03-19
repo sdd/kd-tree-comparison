@@ -21,9 +21,7 @@ use kiddo_v2::types::{Content, Index};
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 100;
-const RADIUS_SMALL: f64 = 0.01;
-const RADIUS_MEDIUM: f64 = 0.05;
-const RADIUS_LARGE: f64 = 0.25;
+const RADIUS: f64 = 0.01;
 
 type FXP = U16; // FixedU16<U16>;
 
@@ -49,20 +47,8 @@ macro_rules! bench_fixed {
     };
 }
 
-pub fn within_small(c: &mut Criterion) {
-    within(c, RADIUS_SMALL, "small");
-}
-
-pub fn within_medium(c: &mut Criterion) {
-    within(c, RADIUS_MEDIUM, "medium");
-}
-
-pub fn within_large(c: &mut Criterion) {
-    within(c, RADIUS_LARGE, "large");
-}
-
-fn within(c: &mut Criterion, radius: f64, radius_name: &str) {
-    let mut group = c.benchmark_group(format!("Query: within, {} radius", radius_name));
+fn within(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Query: within radius");
     group.throughput(Throughput::Elements(QUERY_POINTS_PER_LOOP as u64));
 
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
@@ -71,27 +57,29 @@ fn within(c: &mut Criterion, radius: f64, radius_name: &str) {
     batch_benches_parameterized!(
         group,
         bench_float,
-        radius,
-        [(f64, 2), (f64, 3), (f64, 4), (f32, 3)],
+        RADIUS,
+        [(f32, 2), (f64, 2), (f64, 3), (f64, 4), (f32, 3)],
         [
             (100, u16, u16),
             (1_000, u16, u16),
             (10_000, u16, u16),
             (100_000, u32, u16),
-            (1_000_000, u32, u32)
+            (1_000_000, u32, u32),
+            (10_000_000, u32, u32)
         ]
     );
     batch_benches_parameterized!(
         group,
         bench_fixed,
-        radius,
-        [(FXP, 3)],
+        RADIUS,
+        [(FXP, 2), (FXP, 3)],
         [
             (100, u16, u16),
             (1_000, u16, u16),
             (10_000, u16, u16),
             (100_000, u32, u16),
-            (1_000_000, u32, u32)
+            (1_000_000, u32, u32),
+            (10_000_000, u32, u32)
         ]
     );
 
@@ -213,5 +201,5 @@ fn bench_query_fixed<
     );
 }
 
-criterion_group!(benches, within_small, within_medium, within_large);
+criterion_group!(benches, within);
 criterion_main!(benches);
