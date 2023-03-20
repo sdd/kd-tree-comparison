@@ -64,7 +64,7 @@ fn bench_query_float<A: Float, const K: usize>(
         &*format!("{}/{}", &subtype, &initial_size),
         BenchSpec::new(&*format!(
             r#"
-dist, idx = kd_tree.query_radius(query_pts, r={}, sort_results=True)
+dist, idx = kd_tree.query_radius(query_pts, r={}, sort_results=True, return_distance=True)
         "#,
         RADIUS.sqrt(),
         ))
