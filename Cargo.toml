@@ -4,8 +4,6 @@ version = "0.1.0"
 edition = "2021"
 autobenches = false
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 az = "1.2.1"
 criterion = "0.4"
@@ -13,7 +11,7 @@ criterion-polyglot = "0.1"
 fixed = "1.22"
 fnntw = "0.2"
 kiddo_v1 = { version = "0.2", package = "kiddo" }
-kiddo_v2 = { path = "../sok", package = "kiddo" }
+kiddo_v2 = { version = "2.0.0-beta.9", package = "kiddo" }
 nabo = "0.2"
 num-traits = "0.2.15"
 ordered-float = "3.4.0"

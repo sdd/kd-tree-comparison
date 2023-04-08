@@ -28,7 +28,7 @@ macro_rules! bench_float {
 
 
 fn within_unsorted(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Query, within radius unsorted");
+    let mut group = c.benchmark_group("Query within radius unsorted");
     group.throughput(Throughput::Elements(QUERY_POINTS_PER_LOOP as u64));
 
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
