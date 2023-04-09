@@ -37,7 +37,7 @@ pub fn nearest(c: &mut Criterion) {
 
     batch_benches!(
         group,
-        bench_float_10,
+        bench_float,
         [(f32, 2), (f32, 3), (f32, 4), (f64, 2), (f64, 3), (f64, 4)],
         [
             (100, u16, u16),
@@ -64,10 +64,10 @@ fn bench_query_float<A: Float, const K: usize>(
     group.python_benchmark(
         &*format!("{}/{}", &subtype, &initial_size),
         BenchSpec::new(
-            r#"
-dist, idx = kd_tree.query_radius(query_pts, r={}, sort_results=True)
-        "#,
-        )
+            &*format!(r#"
+dist, idx = kd_tree.query_radius(query_pts, r={}, sort_results=True, return_distance=True)
+        "#,RADIUS.sqrt(),
+            ))
         .with_global_init(&*format!(
             r#"
 from sklearn.neighbors import KDTree
@@ -78,7 +78,7 @@ query_pts = np.random.rand({}, {}).astype({})
 
 kd_tree = KDTree(data_pts)
         "#,
-           RADIUS.sqrt(), &initial_size, K, rust_float_to_py(std::any::type_name::<A>()), &query_point_qty, K, rust_float_to_py(std::any::type_name::<A>())
+           &initial_size, K, rust_float_to_py(std::any::type_name::<A>()), &query_point_qty, K, rust_float_to_py(std::any::type_name::<A>())
         )),
     );
 }

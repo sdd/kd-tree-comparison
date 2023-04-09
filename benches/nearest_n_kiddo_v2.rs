@@ -151,7 +151,6 @@ fn bench_query_nearest_n_fixed_10<
                 black_box(
                     kdtree
                         .nearest_n(point, 10, &squared_euclidean_fixedpoint)
-                        .collect::<Vec<_>>(),
                 );
             });
         });
@@ -288,11 +287,6 @@ fn bench_query_nearest_n_fixed_100<
                 black_box(
                     kdtree
                         .nearest_n(point, 100, &squared_euclidean_fixedpoint)
-                        .for_each(|res_item| {
-                            black_box({
-                                let _x = res_item;
-                            });
-                        }),
                 );
             });
         });
