@@ -1,7 +1,7 @@
 use az::{Az, Cast};
 use criterion::measurement::WallTime;
 use criterion::{
-    black_box, criterion_group, criterion_main, AxisScale, BatchSize, BenchmarkGroup, BenchmarkId,
+    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId,
     Criterion, PlotConfiguration, Throughput,
 };
 use fixed::types::extra::{LeEqU16, Unsigned, U16};
@@ -11,13 +11,11 @@ use rand::distributions::{Distribution, Standard};
 
 use kiddo_v2::distance::squared_euclidean;
 use kiddo_v2::fixed::distance::squared_euclidean as squared_euclidean_fixedpoint;
-use kiddo_v2::fixed::kdtree::{Axis as AxisFixed, KdTree as KdTreeFixed};
+use kiddo_v2::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
 use kiddo_v2::float::kdtree::{Axis, KdTree};
-use kiddo_v2::test_utils::{
-    build_populated_tree_and_query_points_fixed, build_populated_tree_and_query_points_float,
-    process_queries_fixed_parameterized, process_queries_float_parameterized,
-};
+use kiddo_v2::test_utils::{rand_data_fixed_u16_entry, rand_data_fixed_u16_point};
 use kiddo_v2::types::{Content, Index};
+use rayon::prelude::*;
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 100;
@@ -86,49 +84,6 @@ fn within_unsorted(c: &mut Criterion) {
     group.finish();
 }
 
-fn perform_query_float<
-    A: Axis,
-    T: Content + 'static,
-    const K: usize,
-    const B: usize,
-    IDX: Index<T = IDX> + 'static,
->(
-    kdtree: &KdTree<A, T, K, BUCKET_SIZE, IDX>,
-    point: &[A; K],
-    radius: f64,
-) where
-    usize: Cast<IDX>,
-    f64: Cast<A>,
-{
-    black_box({
-        let _res = black_box(kdtree.within_unsorted(&point, radius.az::<A>(), &squared_euclidean));
-    });
-}
-
-fn perform_query_fixed<
-    A: Unsigned,
-    T: Content + 'static,
-    const K: usize,
-    const B: usize,
-    IDX: Index<T = IDX> + 'static,
->(
-    kdtree: &KdTreeFixed<FixedU16<A>, T, K, BUCKET_SIZE, IDX>,
-    point: &[FixedU16<A>; K],
-    radius: f64,
-) where
-    usize: Cast<IDX>,
-    FixedU16<A>: AxisFixed,
-    A: LeEqU16,
-{
-    black_box({
-        let _res = black_box(kdtree.within_unsorted(
-            &point,
-            FixedU16::<A>::from_num(radius),
-            &squared_euclidean_fixedpoint,
-        ));
-    });
-}
-
 fn bench_query_float<
     'a,
     A: Axis + 'static,
@@ -146,25 +101,27 @@ fn bench_query_float<
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
 {
-    group.bench_with_input(
-        BenchmarkId::new(subtype, initial_size),
-        &initial_size,
-        |b, &size| {
-            b.iter_batched(
-                || {
-                    build_populated_tree_and_query_points_float::<A, T, K, BUCKET_SIZE, IDX>(
-                        size,
-                        QUERY_POINTS_PER_LOOP,
-                    )
-                },
-                process_queries_float_parameterized(
-                    perform_query_float::<A, T, K, BUCKET_SIZE, IDX>,
-                    radius,
-                ),
-                BatchSize::SmallInput,
-            );
-        },
-    );
+    let mut kdtree = KdTree::<A, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
+
+    for _ in 0..initial_size {
+        let point = rand::random::<([A; K], T)>();
+        kdtree.add(&point.0, point.1);
+    }
+
+    let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
+        .into_iter()
+        .map(|_| rand::random::<[A; K]>())
+        .collect();
+
+    group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
+        b.iter(|| {
+            query_points.par_iter().for_each(|point| {
+                black_box(
+                    kdtree.within_unsorted(point, radius.az::<A>(), &squared_euclidean)
+                );
+            });
+        });
+    });
 }
 
 fn bench_query_fixed<
@@ -184,25 +141,29 @@ fn bench_query_fixed<
     FixedU16<A>: AxisFixed,
     A: LeEqU16,
 {
-    group.bench_with_input(
-        BenchmarkId::new(subtype, initial_size),
-        &initial_size,
-        |b, &size| {
-            b.iter_batched(
-                || {
-                    build_populated_tree_and_query_points_fixed::<A, T, K, BUCKET_SIZE, IDX>(
-                        size,
-                        QUERY_POINTS_PER_LOOP,
-                    )
-                },
-                process_queries_fixed_parameterized(
-                    perform_query_fixed::<A, T, K, BUCKET_SIZE, IDX>,
-                    radius,
-                ),
-                BatchSize::SmallInput,
-            );
-        },
-    );
+    let mut kdtree =
+        FixedKdTree::<FixedU16<A>, T, K, BUCKET_SIZE, IDX>::with_capacity(initial_size);
+
+    for _ in 0..initial_size {
+        let entry = rand_data_fixed_u16_entry::<A, T, K>();
+        kdtree.add(&entry.0, entry.1);
+    }
+
+    let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
+        .into_iter()
+        .map(|_| rand_data_fixed_u16_point::<A, K>())
+        .collect();
+
+    group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
+        b.iter(|| {
+            query_points.par_iter().for_each(|point| {
+                black_box(
+                    kdtree
+                        .within_unsorted(point, FixedU16::<A>::from_num(radius), &squared_euclidean_fixedpoint),
+                );
+            });
+        });
+    });
 }
 
 criterion_group!(

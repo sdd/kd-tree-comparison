@@ -51,10 +51,6 @@ name = "best_n_kiddo_v2"
 harness = false
 
 [[bench]]
-name = "best_n_kiddo_v1"
-harness = false
-
-[[bench]]
 name = "nearest_one_kiddo_v2"
 harness = false
 
