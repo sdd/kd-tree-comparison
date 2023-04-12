@@ -5,6 +5,12 @@ It measures construction time as well as query time, across a matrix of tree siz
 
 Comments and contributions are welcome.
 
+## Data Visualization
+
+A companion webapp to this test suite exists where the results can be explored interactively, at [https://sdd.github.io/kd-tree-comparison-webapp/](https://sdd.github.io/kd-tree-comparison-webapp/).
+
+The repository for the visualisation webapp is at [https://github.com/sdd/kd-tree-comparison-webapp](https://github.com/sdd/kd-tree-comparison-webapp)
+
 ## Libraries tested
 
 * [Kiddo v2.x](https://github.com/sdd/kiddo) (full disclosure: I'm the author)
