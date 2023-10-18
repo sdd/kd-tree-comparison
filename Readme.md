@@ -12,8 +12,10 @@ A companion webapp to this test suite exists where the results can be explored i
 The repository for the visualisation webapp is at [https://github.com/sdd/kd-tree-comparison-webapp](https://github.com/sdd/kd-tree-comparison-webapp)
 
 ## Libraries tested
+(full disclosure: I'm the author of Kiddo)
 
-* [Kiddo v2.x](https://github.com/sdd/kiddo) (full disclosure: I'm the author)
+* [Kiddo v3.x](https://github.com/sdd/kiddo)
+* [Kiddo v2.x](https://github.com/sdd/kiddo)
 * [Kiddo v1.x / v0.2.x](https://github.com/sdd/kiddo_v1)
 * [FNNTW](https://crates.io/crates/fnntw) v0.2.3
 * [nabo-rs](https://crates.io/crates/nabo) v0.2.1

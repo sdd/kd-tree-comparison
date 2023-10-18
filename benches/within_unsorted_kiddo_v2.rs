@@ -9,8 +9,8 @@ use fixed::FixedU16;
 use kiddo_v2::batch_benches_parameterized;
 use rand::distributions::{Distribution, Standard};
 
-use kiddo_v2::distance::squared_euclidean;
-use kiddo_v2::fixed::distance::squared_euclidean as squared_euclidean_fixedpoint;
+use kiddo_v2::float::distance::squared_euclidean;
+use kiddo_v2::fixed::distance::squared_euclidean as squared_euclidean_fixed;
 use kiddo_v2::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
 use kiddo_v2::float::kdtree::{Axis, KdTree};
 use kiddo_v2::test_utils::{rand_data_fixed_u16_entry, rand_data_fixed_u16_point};
@@ -159,7 +159,7 @@ fn bench_query_fixed<
             query_points.par_iter().for_each(|point| {
                 black_box(
                     kdtree
-                        .within_unsorted(point, FixedU16::<A>::from_num(radius), &squared_euclidean_fixedpoint),
+                        .within_unsorted(point, FixedU16::<A>::from_num(radius), &squared_euclidean_fixed),
                 );
             });
         });

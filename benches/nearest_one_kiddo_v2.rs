@@ -10,8 +10,8 @@ use rand::distributions::{Distribution, Standard};
 use rayon::prelude::*;
 
 use kiddo_v2::batch_benches;
-use kiddo_v2::distance::squared_euclidean;
-use kiddo_v2::fixed::distance::squared_euclidean as squared_euclidean_fixedpoint;
+use kiddo_v2::float::distance::squared_euclidean;
+use kiddo_v2::fixed::distance::squared_euclidean as squared_euclidean_fixed;
 use kiddo_v2::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
 use kiddo_v2::float::kdtree::{Axis, KdTree};
 use kiddo_v2::test_utils::{rand_data_fixed_u16_entry, rand_data_fixed_u16_point};
@@ -51,32 +51,32 @@ pub fn nearest_one(c: &mut Criterion) {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
+    //         [(f32, 2), (f64, 2), (f64, 3), (f64, 4), (f32, 4), (f32, 3)],
     batch_benches!(
         group,
         bench_float,
-        [(f32, 2), (f64, 2), (f64, 3), (f64, 4), (f32, 4), (f32, 3)],
+        [(f64, 2), (f64, 3), (f64, 4)],
         [
             (100, u16, u16),
             (1_000, u16, u16),
             (10_000, u16, u16),
             (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
+            (1_000_000, u32, u32)
         ]
     );
-    batch_benches!(
-        group,
-        bench_fixed,
-        [(FXP, 3)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
-    );
+    // batch_benches!(
+    //     group,
+    //     bench_fixed,
+    //     [(FXP, 3)],
+    //     [
+    //         (100, u16, u16),
+    //         (1_000, u16, u16),
+    //         (10_000, u16, u16),
+    //         (100_000, u32, u16),
+    //         (1_000_000, u32, u32),
+    //         (10_000_000, u32, u32)
+    //     ]
+    // );
 
     group.finish();
 }
@@ -112,6 +112,7 @@ fn bench_query_nearest_one_float<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
+                // black_box(kdtree.nearest_one::<SquaredEuclidean>(point));
                 black_box(kdtree.nearest_one(point, &squared_euclidean));
             });
         });
@@ -150,7 +151,8 @@ fn bench_query_nearest_one_fixed<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(kdtree.nearest_one(point, &squared_euclidean_fixedpoint));
+                // black_box(kdtree.nearest_one::<SquaredEuclideanFixed>(point));
+                black_box(kdtree.nearest_one(point, &squared_euclidean_fixed));
             });
         });
     });

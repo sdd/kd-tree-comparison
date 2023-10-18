@@ -11,12 +11,22 @@ criterion-polyglot = "0.1"
 fixed = "1.22"
 fnntw = "0.2"
 kiddo_v1 = { version = "0.2", package = "kiddo" }
-kiddo_v2 = { version = "2.0.0-beta.9", package = "kiddo" }
+kiddo_v2 = { version = "2.1.1", package = "kiddo" }
+kiddo_v3 = { version = "3.0.0-beta.4", package = "kiddo", features = ["immutable"] }
+kiddo_next = { path = "../sok", package = "kiddo", features = ["immutable"] }
+memmap = "0.7.0"
 nabo = "0.2"
 num-traits = "0.2.15"
 ordered-float = "3.4.0"
 rand = "0.8.5"
 rayon = "1.6.1"
+rkyv = { version = "0.7", default-features = false, features = ["alloc", "copy_unsafe", "size_64"] }
+pretty_env_logger = "0.5.0"
+log = "0.4.20"
+indicatif = "0.17.7"
+
+[lib]
+name = "kd_tree_comparison"
 
 [[bench]]
 name = "add_points_fnntw"
@@ -28,6 +38,14 @@ harness = false
 
 [[bench]]
 name = "add_points_kiddo_v2"
+harness = false
+
+[[bench]]
+name = "add_points_kiddo_v3_std"
+harness = false
+
+[[bench]]
+name = "add_points_kiddo_v3_immutable"
 harness = false
 
 [[bench]]
@@ -51,7 +69,27 @@ name = "best_n_kiddo_v2"
 harness = false
 
 [[bench]]
+name = "best_n_kiddo_v3_std"
+harness = false
+
+[[bench]]
+name = "best_n_kiddo_v3_immutable"
+harness = false
+
+[[bench]]
+name = "deserialize_kiddo_v2"
+harness = false
+
+[[bench]]
 name = "nearest_one_kiddo_v2"
+harness = false
+
+[[bench]]
+name = "nearest_one_kiddo_v3_std"
+harness = false
+
+[[bench]]
+name = "nearest_one_kiddo_v3_immutable"
 harness = false
 
 [[bench]]
@@ -83,6 +121,14 @@ name = "nearest_n_kiddo_v2"
 harness = false
 
 [[bench]]
+name = "nearest_n_kiddo_v3_std"
+harness = false
+
+[[bench]]
+name = "nearest_n_kiddo_v3_immutable"
+harness = false
+
+[[bench]]
 name = "nearest_n_fnntw"
 harness = false
 
@@ -107,7 +153,19 @@ name = "nearest_n_scipy"
 harness = false
 
 [[bench]]
+name = "serialize_kiddo_v2"
+harness = false
+
+[[bench]]
 name = "within_unsorted_kiddo_v2"
+harness = false
+
+[[bench]]
+name = "within_unsorted_kiddo_v3_std"
+harness = false
+
+[[bench]]
+name = "within_unsorted_kiddo_v3_immutable"
 harness = false
 
 [[bench]]
@@ -115,7 +173,15 @@ name = "within_unsorted_kiddo_v1"
 harness = false
 
 [[bench]]
-name = "within_unsorted_nabo"
+name = "nearest_n_within_unsorted_nabo"
+harness = false
+
+[[bench]]
+name = "nearest_n_within_unsorted_kiddo_v3_std"
+harness = false
+
+[[bench]]
+name = "nearest_n_within_unsorted_kiddo_v3_immutable"
 harness = false
 
 [[bench]]
@@ -131,18 +197,46 @@ name = "within_kiddo_v2"
 harness = false
 
 [[bench]]
+name = "within_kiddo_v3_std"
+harness = false
+
+[[bench]]
+name = "nearest_n_within_kiddo_v3_std"
+harness = false
+
+[[bench]]
+name = "nearest_n_within_kiddo_v3_immutable"
+harness = false
+
+[[bench]]
+name = "within_kiddo_v3_immutable"
+harness = false
+
+[[bench]]
 name = "within_kiddo_v1"
 harness = false
 
 [[bench]]
-name = "within_nabo"
+name = "nearest_n_within_nabo"
 harness = false
+
 
 [[bench]]
 name = "within_scipy"
 harness = false
 
-
 [[bench]]
 name = "within_sklearn"
 harness = false
+
+[[bin]]
+name = "compare-output-nearest-one"
+path = "src/compare_output_nearest_one/main.rs"
+
+[[bin]]
+name = "compare-output-nearest-n"
+path = "src/compare_output_nearest_n/main.rs"
+
+[[bin]]
+name = "compare-output-nearest-n-within"
+path = "src/compare_output_nearest_n_within/main.rs"
