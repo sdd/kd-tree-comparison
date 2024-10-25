@@ -1,47 +1,40 @@
-use std::collections::HashMap;
 use az::{Az, Cast};
 use criterion::measurement::WallTime;
-use criterion::{
-    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
-    PlotConfiguration, Throughput,
-};
+use criterion::{black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion, PlotConfiguration, Throughput};
 use rand::distributions::{Distribution, Standard};
 
-use kiddo_v3::batch_benches_parameterized;
-use kiddo_v3::float::distance::SquaredEuclidean;
-use kiddo_v3::float::kdtree::Axis;
-use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
-use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_v3::types::Content;
-
+use kiddo_v3::batch_benches;
+use kiddo_next::float::distance::SquaredEuclidean;
+use kiddo_next::float::kdtree::Axis;
+use kiddo_next::point_slice_ops_float::point_slice::BestFromDists;
+use kiddo_next::immutable_dynamic::float::kdtree::ImmutableKdTree;
+use kiddo_next::types::{Content};
+// use kiddo_v3::test_utils::{build_populated_tree_and_query_points_immutable_float, process_queries_immutable_float};
 use rayon::prelude::*;
 
 const BUCKET_SIZE: usize = 32;
-const QUERY_POINTS_PER_LOOP: usize = 100;
-const RADIUS: f64 = 0.01;
+const QUERY_POINTS_PER_LOOP: usize = 1_000;
 
-macro_rules! bench_float {
-    ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $radius:tt,  $subtype: expr) => {
-        bench_query_float::<$a, $t, $k>(
+macro_rules! bench_float_10 {
+    ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
+        bench_query_best_n_float_10::<$a, $t, $k>(
             &mut $group,
             $size,
-            $radius,
-            &format!("Kiddo_v3_immutable {}", $subtype),
+            &format!("Kiddo_v5_immutable_dynamic {}", $subtype),
         );
     };
 }
 
-fn within(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Query nearest n within radius");
+pub fn best_10(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Query Best 10");
     group.throughput(Throughput::Elements(QUERY_POINTS_PER_LOOP as u64));
 
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
-    batch_benches_parameterized!(
+    batch_benches!(
         group,
-        bench_float,
-        RADIUS,
+        bench_float_10,
         [(f64, 2), (f64, 3), (f64, 4)],
         [
             (100, u16, u16),
@@ -53,10 +46,9 @@ fn within(c: &mut Criterion) {
         ]
     );
 
-    batch_benches_parameterized!(
+    batch_benches!(
         group,
-        bench_float,
-        RADIUS,
+        bench_float_10,
         [(f32, 2), (f32, 3), (f32, 4)],
         [
             (100, u16, u16),
@@ -69,7 +61,7 @@ fn within(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_query_float<
+fn bench_query_best_n_float_10<
     'a,
     A: Axis + 'static,
     T: Content + 'static,
@@ -77,14 +69,13 @@ fn bench_query_float<
 >(
     group: &'a mut BenchmarkGroup<WallTime>,
     initial_size: usize,
-    radius: f64,
     subtype: &str,
 ) where
-    A: BestFromDists<T, 32>,
     usize: Cast<T>,
     f64: Cast<A>,
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
+    A: BestFromDists<T>,
 {
     let initial_points: Vec<_> = (0..initial_size)
         .into_iter()
@@ -98,27 +89,16 @@ fn bench_query_float<
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
-    let max_results_map =  HashMap::from([
-        (100usize, 3usize),
-        (1_000, 10),
-        (10_000, 100),
-        (100_000, 100),
-        (1_000_000, 100),
-        (10_000_000, 1000),
-    ]);
-
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                let max_results = *max_results_map.get(&initial_size).unwrap();
-
                 black_box(
-                    kdtree.nearest_n_within::<SquaredEuclidean>(point, radius.az::<A>(), max_results, true)
+                    kdtree.best_n_within::<SquaredEuclidean>(point, 0.05f64.az::<A>(), 10).min()
                 );
             });
         });
     });
 }
 
-criterion_group!(benches, within);
+criterion_group!(benches, best_10);
 criterion_main!(benches);

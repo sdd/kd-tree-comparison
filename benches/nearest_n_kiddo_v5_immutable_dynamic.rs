@@ -7,11 +7,11 @@ use criterion::{
 use rand::distributions::{Distribution, Standard};
 
 use kiddo_v3::batch_benches;
-use kiddo_v3::float::distance::SquaredEuclidean;
-use kiddo_v3::float::kdtree::Axis;
-use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
-use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_v3::types::{Content};
+use kiddo_next::float::distance::SquaredEuclidean;
+use kiddo_next::float::kdtree::Axis;
+use kiddo_next::point_slice_ops_float::point_slice::BestFromDists;
+use kiddo_next::immutable_dynamic::float::kdtree::ImmutableKdTree;
+use kiddo_next::types::{Content};
 use rayon::prelude::*;
 
 const BUCKET_SIZE: usize = 32;
@@ -22,7 +22,7 @@ macro_rules! bench_float_10 {
         bench_query_nearest_n_float_10::<$a, $t, $k>(
             &mut $group,
             $size,
-            &format!("Kiddo_v3_immutable {}", $subtype),
+            &format!("Kiddo_v5_immutable_dynamic {}", $subtype),
         );
     };
 }
@@ -65,7 +65,7 @@ pub fn nearest_10(c: &mut Criterion) {
 
 fn bench_query_nearest_n_float_10<
     'a,
-    A: Axis + 'static +  BestFromDists<T, 32>,
+    A: Axis + 'static +  BestFromDists<T>,
     T: Content + 'static,
     const K: usize,
 >(
@@ -73,7 +73,7 @@ fn bench_query_nearest_n_float_10<
     initial_size: usize,
     subtype: &str,
 ) where
-    A: BestFromDists<T, 32>,
+    A: BestFromDists<T>,
     usize: Cast<T>,
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
@@ -106,7 +106,7 @@ macro_rules! bench_float_100 {
         bench_query_nearest_n_float_100::<$a, $t, $k>(
             &mut $group,
             $size,
-            &format!("Kiddo_v3_immutable {}", $subtype),
+            &format!("Kiddo_v5_immutable_dynamic {}", $subtype),
         );
     };
 }
@@ -157,7 +157,7 @@ fn bench_query_nearest_n_float_100<
     initial_size: usize,
     subtype: &str,
 ) where
-    A: BestFromDists<T, 32>,
+    A: BestFromDists<T>,
     usize: Cast<T>,
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,

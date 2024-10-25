@@ -6,12 +6,12 @@ use criterion::{
 };
 use rand::distributions::{Distribution, Standard};
 
-use kiddo_next::batch_benches_parameterized;
-use kiddo_next::float::distance::SquaredEuclidean;
-use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_simd::leaf_node::BestFromDists;
-use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_next::types::Content;
+use kiddo_v3::batch_benches_parameterized;
+use kiddo_v3::float::distance::SquaredEuclidean;
+use kiddo_v3::float::kdtree::Axis;
+use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
+use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
+use kiddo_v3::types::Content;
 
 use rayon::prelude::*;
 

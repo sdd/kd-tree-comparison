@@ -6,6 +6,7 @@ use rand::distributions::{Distribution, Standard};
 use kiddo_v3::batch_benches;
 use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::float::kdtree::Axis;
+use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
 use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
 use kiddo_v3::types::{Content};
 // use kiddo_v3::test_utils::{build_populated_tree_and_query_points_immutable_float, process_queries_immutable_float};
@@ -74,6 +75,7 @@ fn bench_query_best_n_float_10<
     f64: Cast<A>,
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
+    A: BestFromDists<T, 32>
 {
     let initial_points: Vec<_> = (0..initial_size)
         .into_iter()

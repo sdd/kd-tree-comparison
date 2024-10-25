@@ -12,8 +12,8 @@ fixed = "1.22"
 fnntw = "0.2"
 kiddo_v1 = { version = "0.2", package = "kiddo" }
 kiddo_v2 = { version = "2.1.1", package = "kiddo" }
-kiddo_v3 = { version = "3.0.0-beta.4", package = "kiddo", features = ["immutable"] }
-kiddo_next = { path = "../sok", package = "kiddo", features = ["immutable"] }
+kiddo_v3 = { version = "3", package = "kiddo", features = ["immutable"] }
+kiddo_next = { path = "../kiddo", package = "kiddo", features = ["immutable"] }
 memmap = "0.7.0"
 nabo = "0.2"
 num-traits = "0.2.15"
@@ -49,6 +49,10 @@ name = "add_points_kiddo_v3_immutable"
 harness = false
 
 [[bench]]
+name = "add_points_kiddo_v5_immutable_dynamic"
+harness = false
+
+[[bench]]
 name = "add_points_nabo"
 harness = false
 
@@ -77,6 +81,10 @@ name = "best_n_kiddo_v3_immutable"
 harness = false
 
 [[bench]]
+name = "best_n_kiddo_v5_immutable_dynamic"
+harness = false
+
+[[bench]]
 name = "deserialize_kiddo_v2"
 harness = false
 
@@ -90,6 +98,10 @@ harness = false
 
 [[bench]]
 name = "nearest_one_kiddo_v3_immutable"
+harness = false
+
+[[bench]]
+name = "nearest_one_kiddo_v5_immutable_dynamic"
 harness = false
 
 [[bench]]
@@ -126,6 +138,10 @@ harness = false
 
 [[bench]]
 name = "nearest_n_kiddo_v3_immutable"
+harness = false
+
+[[bench]]
+name = "nearest_n_kiddo_v5_immutable_dynamic"
 harness = false
 
 [[bench]]
@@ -169,6 +185,10 @@ name = "within_unsorted_kiddo_v3_immutable"
 harness = false
 
 [[bench]]
+name = "within_unsorted_kiddo_v5_immutable_dynamic"
+harness = false
+
+[[bench]]
 name = "within_unsorted_kiddo_v1"
 harness = false
 
@@ -182,6 +202,10 @@ harness = false
 
 [[bench]]
 name = "nearest_n_within_unsorted_kiddo_v3_immutable"
+harness = false
+
+[[bench]]
+name = "nearest_n_within_unsorted_kiddo_v5_immutable_dynamic"
 harness = false
 
 [[bench]]
@@ -209,7 +233,15 @@ name = "nearest_n_within_kiddo_v3_immutable"
 harness = false
 
 [[bench]]
+name = "nearest_n_within_kiddo_v5_immutable_dynamic"
+harness = false
+
+[[bench]]
 name = "within_kiddo_v3_immutable"
+harness = false
+
+[[bench]]
+name = "within_kiddo_v5_immutable_dynamic"
 harness = false
 
 [[bench]]

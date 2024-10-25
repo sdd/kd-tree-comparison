@@ -8,13 +8,13 @@ use fixed::types::extra::{Unsigned, U16};
 use fixed::FixedU16;
 use rand::distributions::{Distribution, Standard};
 
-use kiddo_next::batch_benches;
-use kiddo_next::float::distance::SquaredEuclidean;
-use kiddo_next::fixed::distance::SquaredEuclidean as SquaredEuclideanFixed;
-use kiddo_next::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
-use kiddo_next::float::kdtree::{Axis, KdTree};
-use kiddo_next::test_utils::{rand_data_fixed_u16_entry, rand_data_fixed_u16_point};
-use kiddo_next::types::{Content, Index};
+use kiddo_v3::batch_benches;
+use kiddo_v3::float::distance::SquaredEuclidean;
+use kiddo_v3::fixed::distance::SquaredEuclidean as SquaredEuclideanFixed;
+use kiddo_v3::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
+use kiddo_v3::float::kdtree::{Axis, KdTree};
+use kiddo_v3::test_utils::{rand_data_fixed_u16_entry, rand_data_fixed_u16_point};
+use kiddo_v3::types::{Content, Index};
 use rayon::prelude::*;
 
 const BUCKET_SIZE: usize = 32;
