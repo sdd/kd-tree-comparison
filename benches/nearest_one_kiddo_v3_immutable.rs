@@ -7,12 +7,12 @@ use criterion::{
 use rand::distributions::{Distribution, Standard};
 use rayon::prelude::*;
 
-use kiddo_next::batch_benches;
-use kiddo_next::float::distance::SquaredEuclidean;
-use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_simd::leaf_node::BestFromDists;
-use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_next::types::Content;
+use kiddo_v3::batch_benches;
+use kiddo_v3::float::distance::SquaredEuclidean;
+use kiddo_v3::float::kdtree::Axis;
+use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
+use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
+use kiddo_v3::types::Content;
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 1_000;

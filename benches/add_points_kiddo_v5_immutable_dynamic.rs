@@ -3,10 +3,10 @@ use criterion::{black_box, criterion_group, criterion_main, AxisScale, Benchmark
 use rand::distributions::{Distribution, Standard};
 
 use kiddo_v3::batch_benches;
-use kiddo_v3::float::kdtree::Axis;
-use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
-use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_v3::types::Content;
+use kiddo_next::float::kdtree::Axis;
+use kiddo_next::point_slice_ops_float::point_slice::BestFromDists;
+use kiddo_next::immutable_dynamic::float::kdtree::ImmutableKdTree;
+use kiddo_next::types::Content;
 
 const BUCKET_SIZE: usize = 32;
 
@@ -15,7 +15,7 @@ macro_rules! bench_empty_float {
         bench_add_to_empty_float::<$a, $t, $k>(
             &mut $group,
             $size,
-            &format!("Kiddo_v3_immutable {}", $subtype),
+            &format!("Kiddo_v5_immutable_dynamic {}", $subtype),
         );
     };
 }
@@ -63,7 +63,7 @@ fn bench_add_to_empty_float<A: Axis, T: Content, const K: usize>(
 ) where
     Standard: Distribution<[A; K]>,
     usize: az::Cast<T>,
-    A: BestFromDists<T, 32>
+    A: BestFromDists<T>
 {
     group.bench_with_input(
         BenchmarkId::new(subtype, qty_to_add),
