@@ -109,9 +109,7 @@ fn bench_query_nearest_n_float_10<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(
-                    kdtree.nearest_n(point, 10, &squared_euclidean)
-                );
+                black_box(kdtree.nearest_n(point, 10, &squared_euclidean));
             });
         });
     });
@@ -148,10 +146,7 @@ fn bench_query_nearest_n_fixed_10<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(
-                    kdtree
-                        .nearest_n(point, 10, &squared_euclidean_fixedpoint)
-                );
+                black_box(kdtree.nearest_n(point, 10, &squared_euclidean_fixedpoint));
             });
         });
     });
@@ -244,10 +239,7 @@ fn bench_query_nearest_n_float_100<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(
-                    kdtree
-                        .nearest_n(point, 100, &squared_euclidean)
-                );
+                black_box(kdtree.nearest_n(point, 100, &squared_euclidean));
             });
         });
     });
@@ -284,10 +276,7 @@ fn bench_query_nearest_n_fixed_100<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(
-                    kdtree
-                        .nearest_n(point, 100, &squared_euclidean_fixedpoint)
-                );
+                black_box(kdtree.nearest_n(point, 100, &squared_euclidean_fixedpoint));
             });
         });
     });

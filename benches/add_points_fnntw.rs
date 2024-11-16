@@ -1,7 +1,7 @@
 use criterion::measurement::WallTime;
 use criterion::{
-    AxisScale, BatchSize, BenchmarkGroup, BenchmarkId, black_box, Criterion, criterion_group,
-    criterion_main, PlotConfiguration,
+    black_box, criterion_group, criterion_main, AxisScale, BatchSize, BenchmarkGroup, BenchmarkId,
+    Criterion, PlotConfiguration,
 };
 use kiddo_v2::batch_benches;
 use rand::distributions::{Distribution, Standard};

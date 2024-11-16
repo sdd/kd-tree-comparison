@@ -11,7 +11,7 @@ use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::float::kdtree::Axis;
 use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
 use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_v3::types::{Content};
+use kiddo_v3::types::Content;
 use rayon::prelude::*;
 
 const BUCKET_SIZE: usize = 32;
@@ -65,7 +65,7 @@ pub fn nearest_10(c: &mut Criterion) {
 
 fn bench_query_nearest_n_float_10<
     'a,
-    A: Axis + 'static +  BestFromDists<T, 32>,
+    A: Axis + 'static + BestFromDists<T, 32>,
     T: Content + 'static,
     const K: usize,
 >(
@@ -93,9 +93,12 @@ fn bench_query_nearest_n_float_10<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(
-                    kdtree.nearest_n_within::<SquaredEuclidean>(point, A::infinity(), 10, true)
-                );
+                black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
+                    point,
+                    A::infinity(),
+                    10,
+                    true,
+                ));
             });
         });
     });
@@ -147,12 +150,7 @@ pub fn nearest_100(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_query_nearest_n_float_100<
-    'a,
-    A: Axis + 'static,
-    T: Content + 'static,
-    const K: usize,
->(
+fn bench_query_nearest_n_float_100<'a, A: Axis + 'static, T: Content + 'static, const K: usize>(
     group: &'a mut BenchmarkGroup<WallTime>,
     initial_size: usize,
     subtype: &str,
@@ -162,7 +160,6 @@ fn bench_query_nearest_n_float_100<
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
 {
-
     let initial_points: Vec<_> = (0..initial_size)
         .into_iter()
         .map(|_| rand::random::<[A; K]>())
@@ -178,10 +175,12 @@ fn bench_query_nearest_n_float_100<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(
-                    kdtree
-                        .nearest_n_within::<SquaredEuclidean>(point, A::infinity(), 100, true)
-                );
+                black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
+                    point,
+                    A::infinity(),
+                    100,
+                    true,
+                ));
             });
         });
     });

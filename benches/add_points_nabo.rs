@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-use std::ops::{AddAssign, SubAssign};
 use criterion::measurement::WallTime;
 use criterion::{
     black_box, criterion_group, criterion_main, AxisScale, BatchSize, BenchmarkGroup, BenchmarkId,
@@ -7,9 +5,11 @@ use criterion::{
 };
 use kiddo_v2::batch_benches;
 use rand::distributions::{Distribution, Standard};
+use std::fmt::Debug;
+use std::ops::{AddAssign, SubAssign};
 
 pub mod nabo_points;
-use nabo_points::{P, random_point_cloud};
+use nabo_points::{random_point_cloud, P};
 
 use nabo::KDTree;
 use num_traits::Float;
@@ -61,10 +61,8 @@ fn bench_add_to_empty_float<A: Float + Debug + Default + AddAssign + SubAssign, 
                 || random_point_cloud(size as u32),
                 |points_to_add| {
                     black_box({
-                        let _tree: KDTree<A, P<A, K>> = KDTree::new_with_bucket_size(
-                            &points_to_add,
-                            black_box(BUCKET_SIZE),
-                        );
+                        let _tree: KDTree<A, P<A, K>> =
+                            KDTree::new_with_bucket_size(&points_to_add, black_box(BUCKET_SIZE));
                     })
                 },
                 BatchSize::SmallInput,

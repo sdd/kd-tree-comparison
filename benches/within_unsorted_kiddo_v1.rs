@@ -26,7 +26,6 @@ macro_rules! bench_float {
     };
 }
 
-
 fn within_unsorted(c: &mut Criterion) {
     let mut group = c.benchmark_group("Query within radius unsorted");
     group.throughput(Throughput::Elements(QUERY_POINTS_PER_LOOP as u64));
@@ -102,8 +101,5 @@ fn bench_query_float<'a, A: Float, const K: usize>(
     );
 }
 
-criterion_group!(
-    benches,
-    within_unsorted
-);
+criterion_group!(benches, within_unsorted);
 criterion_main!(benches);

@@ -1,13 +1,16 @@
 use az::Cast;
 use criterion::measurement::WallTime;
-use criterion::{black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion, PlotConfiguration, BatchSize};
+use criterion::{
+    black_box, criterion_group, criterion_main, AxisScale, BatchSize, BenchmarkGroup, BenchmarkId,
+    Criterion, PlotConfiguration,
+};
 use fixed::types::extra::{Unsigned, U16};
 use fixed::FixedU16;
 use rand::distributions::{Distribution, Standard};
 
 use kiddo_v3::batch_benches;
 use kiddo_v3::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
-use kiddo_v3::float::kdtree::{Axis,KdTree};
+use kiddo_v3::float::kdtree::{Axis, KdTree};
 use kiddo_v3::test_utils::rand_data_fixed_u16_entry;
 use kiddo_v3::types::{Content, Index};
 
@@ -84,7 +87,7 @@ pub fn add_to_empty(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_add_to_empty_float<A: Axis, T: Content, const K: usize, IDX: Index<T = IDX> >(
+fn bench_add_to_empty_float<A: Axis, T: Content, const K: usize, IDX: Index<T = IDX>>(
     group: &mut BenchmarkGroup<WallTime>,
     qty_to_add: usize,
     subtype: &str,
@@ -92,7 +95,7 @@ fn bench_add_to_empty_float<A: Axis, T: Content, const K: usize, IDX: Index<T = 
     usize: Cast<IDX>,
     Standard: Distribution<[A; K]>,
     Standard: Distribution<T>,
-    usize: az::Cast<T>
+    usize: az::Cast<T>,
 {
     group.bench_with_input(
         BenchmarkId::new(subtype, qty_to_add),
@@ -160,7 +163,6 @@ fn bench_add_to_empty_fixed_u16<A: Unsigned, T: Content, const K: usize, IDX: In
         },
     );
 }
-
 
 criterion_group!(benches, add_to_empty);
 criterion_main!(benches);

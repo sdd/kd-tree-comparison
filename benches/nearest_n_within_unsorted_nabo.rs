@@ -1,6 +1,3 @@
-use std::collections::HashMap;
-use std::fmt::Debug;
-use std::ops::{AddAssign, SubAssign};
 use az::{Az, Cast};
 use criterion::measurement::WallTime;
 use criterion::{
@@ -10,10 +7,13 @@ use criterion::{
 use kiddo_v2::batch_benches;
 use rand::distributions::{Distribution, Standard};
 use rayon::prelude::*;
+use std::collections::HashMap;
+use std::fmt::Debug;
+use std::ops::{AddAssign, SubAssign};
 
 pub mod nabo_points;
-use nabo_points::random_point_cloud;
 use nabo::{CandidateContainer, KDTree};
+use nabo_points::random_point_cloud;
 use num_traits::Float;
 
 const BUCKET_SIZE: usize = 32;
@@ -56,14 +56,18 @@ pub fn within(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_query_float<'a, A: Float + Debug + Default + AddAssign + SubAssign + Sync + Send, const K: usize>(
+fn bench_query_float<
+    'a,
+    A: Float + Debug + Default + AddAssign + SubAssign + Sync + Send,
+    const K: usize,
+>(
     group: &'a mut BenchmarkGroup<WallTime>,
     initial_size: usize,
     query_point_qty: usize,
     subtype: &str,
 ) where
     Standard: Distribution<[A; K]>,
-    f64: Cast<A>
+    f64: Cast<A>,
 {
     let points_to_add = random_point_cloud(initial_size as u32);
 
@@ -82,7 +86,7 @@ fn bench_query_float<'a, A: Float + Debug + Default + AddAssign + SubAssign + Sy
         sort_results: false,
     };
 
-    let max_results_map =  HashMap::from([
+    let max_results_map = HashMap::from([
         (100usize, 3u32),
         (1_000, 10),
         (10_000, 100),
@@ -96,12 +100,17 @@ fn bench_query_float<'a, A: Float + Debug + Default + AddAssign + SubAssign + Sy
             query_points.par_iter().for_each(|point| {
                 let max_results = *max_results_map.get(&initial_size).unwrap();
                 // println!("max results for {} is {}", initial_size, max_results);
-                black_box(tree.knn_advanced(max_results, &point, CandidateContainer::BinaryHeap, &params, None));
+                black_box(tree.knn_advanced(
+                    max_results,
+                    &point,
+                    CandidateContainer::BinaryHeap,
+                    &params,
+                    None,
+                ));
             });
         });
     });
 }
-
 
 criterion_group!(benches, within);
 criterion_main!(benches);

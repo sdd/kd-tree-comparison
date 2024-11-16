@@ -1,6 +1,9 @@
 use az::{Az, Cast};
 use criterion::measurement::WallTime;
-use criterion::{black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion, PlotConfiguration, Throughput};
+use criterion::{
+    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
+    PlotConfiguration, Throughput,
+};
 use rand::distributions::{Distribution, Standard};
 
 use kiddo_v3::batch_benches;
@@ -8,7 +11,7 @@ use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::float::kdtree::Axis;
 use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
 use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_v3::types::{Content};
+use kiddo_v3::types::Content;
 // use kiddo_v3::test_utils::{build_populated_tree_and_query_points_immutable_float, process_queries_immutable_float};
 use rayon::prelude::*;
 
@@ -61,12 +64,7 @@ pub fn best_10(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_query_best_n_float_10<
-    'a,
-    A: Axis + 'static,
-    T: Content + 'static,
-    const K: usize,
->(
+fn bench_query_best_n_float_10<'a, A: Axis + 'static, T: Content + 'static, const K: usize>(
     group: &'a mut BenchmarkGroup<WallTime>,
     initial_size: usize,
     subtype: &str,
@@ -75,7 +73,7 @@ fn bench_query_best_n_float_10<
     f64: Cast<A>,
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
-    A: BestFromDists<T, 32>
+    A: BestFromDists<T, 32>,
 {
     let initial_points: Vec<_> = (0..initial_size)
         .into_iter()
@@ -93,7 +91,9 @@ fn bench_query_best_n_float_10<
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
                 black_box(
-                    kdtree.best_n_within::<SquaredEuclidean>(point, 0.05f64.az::<A>(), 10).min()
+                    kdtree
+                        .best_n_within::<SquaredEuclidean>(point, 0.05f64.az::<A>(), 10)
+                        .min(),
                 );
             });
         });

@@ -1,9 +1,9 @@
-use std::ops::{Add, Sub};
-use std::fmt::Debug;
-use std::ops::{AddAssign, SubAssign};
 use nabo::{NotNan, Point};
 use num_traits::{Bounded, Float, Zero};
 use rand::distributions::{Distribution, Standard};
+use std::fmt::Debug;
+use std::ops::{Add, Sub};
+use std::ops::{AddAssign, SubAssign};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct P<A: Float, const K: usize>(pub [NotNan<A>; K]);
@@ -66,7 +66,8 @@ impl<A: Float + Debug + Default + AddAssign + SubAssign, const K: usize> Sub for
 
 /// Creates a random point whose coordinate are in the interval [-100:100].
 pub fn random_point<A: Float + Debug + Default + AddAssign + SubAssign, const K: usize>() -> P<A, K>
-where Standard: Distribution<[A; K]>,
+where
+    Standard: Distribution<[A; K]>,
 {
     let raw_point: [A; K] = rand::random::<[A; K]>();
 
@@ -79,8 +80,11 @@ where Standard: Distribution<[A; K]>,
 }
 
 /// Creates a random cloud of count points using [random_point()] for each.
-pub fn random_point_cloud<A: Float + Debug + Default + AddAssign + SubAssign, const K: usize>(count: u32) -> Vec<P<A, K>>
-    where Standard: Distribution<[A; K]>,
+pub fn random_point_cloud<A: Float + Debug + Default + AddAssign + SubAssign, const K: usize>(
+    count: u32,
+) -> Vec<P<A, K>>
+where
+    Standard: Distribution<[A; K]>,
 {
     (0..count).map(|_| random_point()).collect()
 }

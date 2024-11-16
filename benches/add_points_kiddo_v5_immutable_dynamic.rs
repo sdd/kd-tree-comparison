@@ -1,12 +1,15 @@
 use criterion::measurement::WallTime;
-use criterion::{black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion, PlotConfiguration, BatchSize};
+use criterion::{
+    black_box, criterion_group, criterion_main, AxisScale, BatchSize, BenchmarkGroup, BenchmarkId,
+    Criterion, PlotConfiguration,
+};
 use rand::distributions::{Distribution, Standard};
 
-use kiddo_v3::batch_benches;
 use kiddo_next::float::kdtree::Axis;
-use kiddo_next::point_slice_ops_float::point_slice::BestFromDists;
-use kiddo_next::immutable_dynamic::float::kdtree::ImmutableKdTree;
+use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
+use kiddo_next::immutable_dynamic::float::kdtree::ImmutableDynamicKdTree;
 use kiddo_next::types::Content;
+use kiddo_v3::batch_benches;
 
 const BUCKET_SIZE: usize = 32;
 
@@ -63,7 +66,7 @@ fn bench_add_to_empty_float<A: Axis, T: Content, const K: usize>(
 ) where
     Standard: Distribution<[A; K]>,
     usize: az::Cast<T>,
-    A: BestFromDists<T>
+    A: Axis + LeafSliceFloat<T, K> + 'static,
 {
     group.bench_with_input(
         BenchmarkId::new(subtype, qty_to_add),
@@ -80,7 +83,9 @@ fn bench_add_to_empty_float<A: Axis, T: Content, const K: usize>(
                 },
                 |points_to_add| {
                     black_box({
-                        ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&points_to_add);
+                        ImmutableDynamicKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(
+                            &points_to_add,
+                        );
                     })
                 },
                 BatchSize::SmallInput,
@@ -88,7 +93,6 @@ fn bench_add_to_empty_float<A: Axis, T: Content, const K: usize>(
         },
     );
 }
-
 
 criterion_group!(benches, add_to_empty);
 criterion_main!(benches);
