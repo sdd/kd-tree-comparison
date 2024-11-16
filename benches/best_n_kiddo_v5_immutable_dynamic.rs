@@ -1,14 +1,17 @@
 use az::{Az, Cast};
 use criterion::measurement::WallTime;
-use criterion::{black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion, PlotConfiguration, Throughput};
+use criterion::{
+    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
+    PlotConfiguration, Throughput,
+};
 use rand::distributions::{Distribution, Standard};
 
-use kiddo_v3::batch_benches;
 use kiddo_next::float::distance::SquaredEuclidean;
 use kiddo_next::float::kdtree::Axis;
-use kiddo_next::point_slice_ops_float::point_slice::BestFromDists;
-use kiddo_next::immutable_dynamic::float::kdtree::ImmutableKdTree;
-use kiddo_next::types::{Content};
+use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
+use kiddo_next::immutable_dynamic::float::kdtree::ImmutableDynamicKdTree;
+use kiddo_next::types::Content;
+use kiddo_v3::batch_benches;
 // use kiddo_v3::test_utils::{build_populated_tree_and_query_points_immutable_float, process_queries_immutable_float};
 use rayon::prelude::*;
 
@@ -61,12 +64,7 @@ pub fn best_10(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_query_best_n_float_10<
-    'a,
-    A: Axis + 'static,
-    T: Content + 'static,
-    const K: usize,
->(
+fn bench_query_best_n_float_10<'a, A: Axis + 'static, T: Content + 'static, const K: usize>(
     group: &'a mut BenchmarkGroup<WallTime>,
     initial_size: usize,
     subtype: &str,
@@ -75,14 +73,14 @@ fn bench_query_best_n_float_10<
     f64: Cast<A>,
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
-    A: BestFromDists<T>,
+    A: LeafSliceFloat<T, K>,
 {
     let initial_points: Vec<_> = (0..initial_size)
         .into_iter()
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
-    let kdtree = ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
+    let kdtree = ImmutableDynamicKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
 
     let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
         .into_iter()
@@ -93,7 +91,9 @@ fn bench_query_best_n_float_10<
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
                 black_box(
-                    kdtree.best_n_within::<SquaredEuclidean>(point, 0.05f64.az::<A>(), 10).min()
+                    kdtree
+                        .best_n_within::<SquaredEuclidean>(point, 0.05f64.az::<A>(), 10)
+                        .min(),
                 );
             });
         });

@@ -7,16 +7,16 @@ use criterion::{
 use rand::distributions::{Distribution, Standard};
 use rayon::prelude::*;
 
-use kiddo_v3::batch_benches;
 use kiddo_next::float::distance::SquaredEuclidean;
 use kiddo_next::float::kdtree::Axis;
-use kiddo_next::point_slice_ops_float::point_slice::BestFromDists;
-use kiddo_next::immutable_dynamic::float::kdtree::ImmutableKdTree;
+use kiddo_next::float_leaf_simd::leaf_node::BestFromDists;
+use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
+use kiddo_next::immutable_dynamic::float::kdtree::ImmutableDynamicKdTree;
 use kiddo_next::types::Content;
+use kiddo_v3::batch_benches;
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 1_000;
-
 
 macro_rules! bench_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
@@ -67,7 +67,7 @@ pub fn nearest_one(c: &mut Criterion) {
 
 fn bench_query_nearest_one_float<
     'a,
-    A: Axis +  BestFromDists<T> + 'static,
+    A: Axis + LeafSliceFloat<T, K> + BestFromDists<T, 32> + 'static,
     T: Content + 'static,
     const K: usize,
 >(
@@ -83,7 +83,7 @@ fn bench_query_nearest_one_float<
     let mut points = vec![];
     points.resize_with(initial_size, || rand::random::<[A; K]>());
 
-    let kdtree = ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&points);
+    let kdtree = ImmutableDynamicKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&points);
 
     let query_points: Vec<_> = (0..query_point_qty)
         .into_iter()

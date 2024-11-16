@@ -1,18 +1,18 @@
 use az::{Az, Cast};
-use std::collections::HashMap;
 use criterion::measurement::WallTime;
 use criterion::{
-    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId,
-    Criterion, PlotConfiguration, Throughput,
+    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
+    PlotConfiguration, Throughput,
 };
 use fixed::types::extra::{LeEqU16, Unsigned, U16};
 use fixed::FixedU16;
 use kiddo_v3::batch_benches_parameterized;
 use rand::distributions::{Distribution, Standard};
+use std::collections::HashMap;
 
-use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::fixed::distance::SquaredEuclidean as SquaredEuclideanFixed;
 use kiddo_v3::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
+use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::float::kdtree::{Axis, KdTree};
 use kiddo_v3::test_utils::{rand_data_fixed_u16_entry, rand_data_fixed_u16_point};
 use kiddo_v3::types::{Content, Index};
@@ -114,7 +114,7 @@ fn bench_query_float<
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
-    let max_results_map =  HashMap::from([
+    let max_results_map = HashMap::from([
         (100usize, 3usize),
         (1_000, 10),
         (10_000, 100),
@@ -127,9 +127,12 @@ fn bench_query_float<
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
                 let max_results = *max_results_map.get(&initial_size).unwrap();
-                black_box(
-                    kdtree.nearest_n_within::<SquaredEuclidean>(point, radius.az::<A>(), max_results, false)
-                );
+                black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
+                    point,
+                    radius.az::<A>(),
+                    max_results,
+                    false,
+                ));
             });
         });
     });
@@ -169,16 +172,12 @@ fn bench_query_fixed<
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
                 black_box(
-                    kdtree
-                        .within::<SquaredEuclideanFixed>(point, FixedU16::<A>::from_num(radius)),
+                    kdtree.within::<SquaredEuclideanFixed>(point, FixedU16::<A>::from_num(radius)),
                 );
             });
         });
     });
 }
 
-criterion_group!(
-    benches,
-    within
-);
+criterion_group!(benches, within);
 criterion_main!(benches);

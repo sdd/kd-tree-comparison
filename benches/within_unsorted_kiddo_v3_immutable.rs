@@ -68,12 +68,7 @@ fn within_unsorted(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_query_float<
-    'a,
-    A: Axis + 'static,
-    T: Content + 'static,
-    const K: usize,
->(
+fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize>(
     group: &'a mut BenchmarkGroup<WallTime>,
     initial_size: usize,
     radius: f64,
@@ -100,9 +95,12 @@ fn bench_query_float<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                black_box(
-                    kdtree.nearest_n_within::<SquaredEuclidean>(point, radius.az::<A>(), usize::MAX, false)
-                );
+                black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
+                    point,
+                    radius.az::<A>(),
+                    usize::MAX,
+                    false,
+                ));
             });
         });
     });

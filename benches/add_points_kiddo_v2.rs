@@ -151,6 +151,5 @@ fn bench_add_to_empty_fixed_u16<A: Unsigned, T: Content, const K: usize, IDX: In
     );
 }
 
-
 criterion_group!(benches, add_to_empty);
 criterion_main!(benches);

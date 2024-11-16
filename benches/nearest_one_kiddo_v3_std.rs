@@ -10,11 +10,11 @@ use rand::distributions::{Distribution, Standard};
 use rayon::prelude::*;
 
 use kiddo_v3::batch_benches;
-use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::fixed::distance::SquaredEuclidean as SquaredEuclideanFixed;
+use kiddo_v3::float::distance::SquaredEuclidean;
 
 use kiddo_v3::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
-use kiddo_v3::float::kdtree::{Axis,KdTree};
+use kiddo_v3::float::kdtree::{Axis, KdTree};
 use kiddo_v3::test_utils::{rand_data_fixed_u16_entry, rand_data_fixed_u16_point};
 use kiddo_v3::types::{Content, Index};
 

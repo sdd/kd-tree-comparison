@@ -1,8 +1,8 @@
 use az::{Az, Cast};
 use criterion::measurement::WallTime;
 use criterion::{
-    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId,
-    Criterion, PlotConfiguration, Throughput,
+    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
+    PlotConfiguration, Throughput,
 };
 use fixed::traits::Fixed;
 use fixed::types::extra::{Unsigned, U16};
@@ -12,9 +12,9 @@ use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 
 use kiddo_v3::batch_benches;
-use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::fixed::distance::SquaredEuclidean as SquaredEuclideanFixed;
 use kiddo_v3::fixed::kdtree::{Axis as AxisFixed, KdTree as KdTreeFixed};
+use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::float::kdtree::{Axis, KdTree};
 use kiddo_v3::test_utils::{rand_data_fixed_u16_entry, rand_data_fixed_u16_point};
 use kiddo_v3::types::{Content, Index};
@@ -111,7 +111,9 @@ fn bench_query_best_n_float_10<
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
                 black_box(
-                    kdtree.best_n_within::<SquaredEuclidean>(point, 0.05f64.az::<A>(), 10).min()
+                    kdtree
+                        .best_n_within::<SquaredEuclidean>(point, 0.05f64.az::<A>(), 10)
+                        .min(),
                 );
             });
         });
@@ -150,8 +152,13 @@ fn bench_query_best_n_fixed_10<
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
                 black_box(
-                    kdtree.best_n_within::<SquaredEuclideanFixed>(point, FixedU16::<A>::from_num(0.05f64), 10).min()
-
+                    kdtree
+                        .best_n_within::<SquaredEuclideanFixed>(
+                            point,
+                            FixedU16::<A>::from_num(0.05f64),
+                            10,
+                        )
+                        .min(),
                 );
             });
         });

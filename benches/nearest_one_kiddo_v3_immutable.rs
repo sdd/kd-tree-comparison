@@ -17,7 +17,6 @@ use kiddo_v3::types::Content;
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 1_000;
 
-
 macro_rules! bench_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
         bench_query_nearest_one_float::<$a, $t, $k>(
@@ -67,7 +66,7 @@ pub fn nearest_one(c: &mut Criterion) {
 
 fn bench_query_nearest_one_float<
     'a,
-    A: Axis +  BestFromDists<T, 32> + 'static,
+    A: Axis + BestFromDists<T, 32> + 'static,
     T: Content + 'static,
     const K: usize,
 >(

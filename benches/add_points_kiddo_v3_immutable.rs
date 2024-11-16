@@ -1,5 +1,8 @@
 use criterion::measurement::WallTime;
-use criterion::{black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion, PlotConfiguration, BatchSize};
+use criterion::{
+    black_box, criterion_group, criterion_main, AxisScale, BatchSize, BenchmarkGroup, BenchmarkId,
+    Criterion, PlotConfiguration,
+};
 use rand::distributions::{Distribution, Standard};
 
 use kiddo_v3::batch_benches;
@@ -63,7 +66,7 @@ fn bench_add_to_empty_float<A: Axis, T: Content, const K: usize>(
 ) where
     Standard: Distribution<[A; K]>,
     usize: az::Cast<T>,
-    A: BestFromDists<T, 32>
+    A: BestFromDists<T, 32>,
 {
     group.bench_with_input(
         BenchmarkId::new(subtype, qty_to_add),
@@ -88,7 +91,6 @@ fn bench_add_to_empty_float<A: Axis, T: Content, const K: usize>(
         },
     );
 }
-
 
 criterion_group!(benches, add_to_empty);
 criterion_main!(benches);

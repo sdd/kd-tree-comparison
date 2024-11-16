@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-use std::ops::{AddAssign, SubAssign};
 use criterion::measurement::WallTime;
 use criterion::{
     black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
@@ -8,10 +6,12 @@ use criterion::{
 use kiddo_v2::batch_benches;
 use rand::distributions::{Distribution, Standard};
 use rayon::prelude::*;
+use std::fmt::Debug;
+use std::ops::{AddAssign, SubAssign};
 
 pub mod nabo_points;
-use nabo_points::random_point_cloud;
 use nabo::KDTree;
+use nabo_points::random_point_cloud;
 use num_traits::Float;
 
 const BUCKET_SIZE: usize = 32;
@@ -52,7 +52,11 @@ pub fn nearest_one(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_query_nearest_one_float<'a, A: Float + Debug + Default + AddAssign + SubAssign + Sync + Send, const K: usize>(
+fn bench_query_nearest_one_float<
+    'a,
+    A: Float + Debug + Default + AddAssign + SubAssign + Sync + Send,
+    const K: usize,
+>(
     group: &'a mut BenchmarkGroup<WallTime>,
     initial_size: usize,
     query_point_qty: usize,
