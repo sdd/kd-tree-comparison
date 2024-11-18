@@ -5,6 +5,7 @@ edition = "2021"
 autobenches = false
 
 [dependencies]
+ahash = "0.7.8"
 az = "1.2.1"
 criterion = "0.4"
 criterion-polyglot = "0.1"
