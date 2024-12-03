@@ -5,11 +5,12 @@ use criterion::{
     PlotConfiguration, Throughput,
 };
 use rand::distributions::{Distribution, Standard};
+use std::collections::HashMap;
 
 use kiddo_next::float::distance::SquaredEuclidean;
 use kiddo_next::float::kdtree::Axis;
 use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
-use kiddo_next::immutable_dynamic::float::kdtree::ImmutableDynamicKdTree;
+use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
 use kiddo_next::types::Content;
 use kiddo_v3::batch_benches_parameterized;
 
@@ -30,8 +31,8 @@ macro_rules! bench_float {
     };
 }
 
-fn within_unsorted(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Query within radius unsorted");
+fn within(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Query nearest n within radius unsorted");
     group.throughput(Throughput::Elements(QUERY_POINTS_PER_LOOP as u64));
 
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
@@ -85,26 +86,37 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
-    let kdtree = ImmutableDynamicKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
+    let kdtree = ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
 
     let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
         .into_iter()
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
+    let max_results_map = HashMap::from([
+        (100usize, 3usize),
+        (1_000, 10),
+        (10_000, 100),
+        (100_000, 100),
+        (1_000_000, 100),
+        (10_000_000, 1000),
+    ]);
+
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
+                let max_results = *max_results_map.get(&initial_size).unwrap();
+
                 black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
                     point,
                     radius.az::<A>(),
-                    usize::MAX,
-                    false,
+                    max_results,
+                    true,
                 ));
             });
         });
     });
 }
 
-criterion_group!(benches, within_unsorted);
+criterion_group!(benches, within);
 criterion_main!(benches);

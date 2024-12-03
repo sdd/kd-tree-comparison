@@ -10,7 +10,7 @@ use std::collections::HashMap;
 use kiddo_next::float::distance::SquaredEuclidean;
 use kiddo_next::float::kdtree::Axis;
 use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
-use kiddo_next::immutable_dynamic::float::kdtree::ImmutableDynamicKdTree;
+use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
 use kiddo_next::types::Content;
 use kiddo_v3::batch_benches_parameterized;
 
@@ -86,7 +86,7 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
-    let kdtree = ImmutableDynamicKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
+    let kdtree = ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
 
     let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
         .into_iter()
