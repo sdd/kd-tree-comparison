@@ -6,9 +6,9 @@ use criterion::{
 use rand::distributions::{Distribution, Standard};
 
 use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
+use kiddo_next::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
 use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_next::types::Content;
+use kiddo_next::traits::Content;
 use kiddo_v3::batch_benches;
 
 const BUCKET_SIZE: usize = 32;
@@ -18,7 +18,7 @@ macro_rules! bench_empty_float {
         bench_add_to_empty_float::<$a, $t, $k>(
             &mut $group,
             $size,
-            &format!("Kiddo_v5_immutable_dynamic {}", $subtype),
+            &format!("Kiddo_v5_immutable {}", $subtype),
         );
     };
 }
@@ -66,7 +66,7 @@ fn bench_add_to_empty_float<A: Axis, T: Content, const K: usize>(
 ) where
     Standard: Distribution<[A; K]>,
     usize: az::Cast<T>,
-    A: Axis + LeafSliceFloat<T, K> + 'static,
+    A: Axis + LeafSliceFloat<T> + LeafSliceFloatChunk<T, K> + 'static,
 {
     group.bench_with_input(
         BenchmarkId::new(subtype, qty_to_add),

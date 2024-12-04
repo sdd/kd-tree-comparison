@@ -9,10 +9,9 @@ use rayon::prelude::*;
 
 use kiddo_next::float::distance::SquaredEuclidean;
 use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_simd::leaf_node::BestFromDists;
-use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
+use kiddo_next::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
 use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_next::types::Content;
+use kiddo_next::traits::Content;
 use kiddo_v3::batch_benches;
 
 const BUCKET_SIZE: usize = 32;
@@ -24,7 +23,7 @@ macro_rules! bench_float {
             &mut $group,
             $size,
             QUERY_POINTS_PER_LOOP,
-            &format!("Kiddo_v5_immutable_dynamic {}", $subtype),
+            &format!("Kiddo_v5_immutable {}", $subtype),
         );
     };
 }
@@ -67,7 +66,7 @@ pub fn nearest_one(c: &mut Criterion) {
 
 fn bench_query_nearest_one_float<
     'a,
-    A: Axis + LeafSliceFloat<T, K> + BestFromDists<T, 32> + 'static,
+    A: Axis + LeafSliceFloat<T> + LeafSliceFloatChunk<T, K> + 'static,
     T: Content + 'static,
     const K: usize,
 >(

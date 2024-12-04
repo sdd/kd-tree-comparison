@@ -6,12 +6,12 @@ use criterion::{
 };
 use rand::distributions::{Distribution, Standard};
 use std::collections::HashMap;
-
+use std::num::NonZero;
 use kiddo_next::float::distance::SquaredEuclidean;
 use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
+use kiddo_next::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
 use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_next::types::Content;
+use kiddo_next::traits::Content;
 use kiddo_v3::batch_benches_parameterized;
 
 use rayon::prelude::*;
@@ -26,7 +26,7 @@ macro_rules! bench_float {
             &mut $group,
             $size,
             $radius,
-            &format!("Kiddo_v5_immutable_dynamic {}", $subtype),
+            &format!("Kiddo_v5_immutable {}", $subtype),
         );
     };
 }
@@ -75,7 +75,7 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
     radius: f64,
     subtype: &str,
 ) where
-    A: LeafSliceFloat<T, K>,
+    A: LeafSliceFloat<T> + LeafSliceFloatChunk<T, K>,
     usize: Cast<T>,
     f64: Cast<A>,
     Standard: Distribution<T>,
@@ -105,7 +105,7 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.par_iter().for_each(|point| {
-                let max_results = *max_results_map.get(&initial_size).unwrap();
+                let max_results = NonZero::new(*max_results_map.get(&initial_size).unwrap()).unwrap();
 
                 black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
                     point,

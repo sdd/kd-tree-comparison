@@ -1,3 +1,4 @@
+use std::num::NonZero;
 use az::{Az, Cast};
 use criterion::measurement::WallTime;
 use criterion::{
@@ -8,9 +9,9 @@ use rand::distributions::{Distribution, Standard};
 
 use kiddo_next::float::distance::SquaredEuclidean;
 use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
+use kiddo_next::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
 use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_next::types::Content;
+use kiddo_next::traits::Content;
 use kiddo_v3::batch_benches;
 // use kiddo_v3::test_utils::{build_populated_tree_and_query_points_immutable_float, process_queries_immutable_float};
 use rayon::prelude::*;
@@ -23,7 +24,7 @@ macro_rules! bench_float_10 {
         bench_query_best_n_float_10::<$a, $t, $k>(
             &mut $group,
             $size,
-            &format!("Kiddo_v5_immutable_dynamic {}", $subtype),
+            &format!("Kiddo_v5_immutable {}", $subtype),
         );
     };
 }
@@ -73,7 +74,7 @@ fn bench_query_best_n_float_10<'a, A: Axis + 'static, T: Content + 'static, cons
     f64: Cast<A>,
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
-    A: LeafSliceFloat<T, K>,
+    A: LeafSliceFloat<T> + LeafSliceFloatChunk<T, K>,
 {
     let initial_points: Vec<_> = (0..initial_size)
         .into_iter()
@@ -92,7 +93,7 @@ fn bench_query_best_n_float_10<'a, A: Axis + 'static, T: Content + 'static, cons
             query_points.par_iter().for_each(|point| {
                 black_box(
                     kdtree
-                        .best_n_within::<SquaredEuclidean>(point, 0.05f64.az::<A>(), 10)
+                        .best_n_within::<SquaredEuclidean>(point, 0.05f64.az::<A>(), NonZero::new(10).unwrap())
                         .min(),
                 );
             });
