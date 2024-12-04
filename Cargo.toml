@@ -13,7 +13,8 @@ fixed = "1.22"
 fnntw = "0.2"
 kiddo_v1 = { version = "0.2", package = "kiddo" }
 kiddo_v2 = { version = "2.1.1", package = "kiddo" }
-kiddo_v3 = { version = "3", package = "kiddo", features = ["immutable"] }
+kiddo_v3 = { version = "3.0.0", package = "kiddo", features = ["immutable"] }
+kiddo_v5 = { version = "5.0.0", package = "kiddo", features = ["simd"] }
 kiddo_next = { path = "../kiddo", package = "kiddo", features = ["simd", "modified_van_emde_boas"] }
 memmap = "0.7.0"
 nabo = "0.2"
