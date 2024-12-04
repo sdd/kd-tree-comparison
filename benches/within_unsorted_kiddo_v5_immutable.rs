@@ -1,3 +1,4 @@
+use std::num::NonZero;
 use az::{Az, Cast};
 use criterion::measurement::WallTime;
 use criterion::{
@@ -8,9 +9,9 @@ use rand::distributions::{Distribution, Standard};
 
 use kiddo_next::float::distance::SquaredEuclidean;
 use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
+use kiddo_next::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
 use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_next::types::Content;
+use kiddo_next::traits::Content;
 use kiddo_v3::batch_benches_parameterized;
 
 use rayon::prelude::*;
@@ -25,7 +26,7 @@ macro_rules! bench_float {
             &mut $group,
             $size,
             $radius,
-            &format!("Kiddo_v5_immutable_dynamic {}", $subtype),
+            &format!("Kiddo_v5_immutable {}", $subtype),
         );
     };
 }
@@ -74,7 +75,7 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
     radius: f64,
     subtype: &str,
 ) where
-    A: LeafSliceFloat<T, K>,
+    A: LeafSliceFloat<T> + LeafSliceFloatChunk<T, K>,
     usize: Cast<T>,
     f64: Cast<A>,
     Standard: Distribution<T>,
@@ -98,7 +99,7 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
                 black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
                     point,
                     radius.az::<A>(),
-                    usize::MAX,
+                    NonZero::new(usize::MAX).unwrap(),
                     false,
                 ));
             });
