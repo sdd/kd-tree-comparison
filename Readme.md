@@ -14,6 +14,7 @@ The repository for the visualisation webapp is at [https://github.com/sdd/kd-tre
 ## Libraries tested
 (full disclosure: I'm the author of Kiddo)
 
+* [Kiddo v5.x](https://github.com/sdd/kiddo)
 * [Kiddo v3.x](https://github.com/sdd/kiddo)
 * [Kiddo v2.x](https://github.com/sdd/kiddo)
 * [Kiddo v1.x / v0.2.x](https://github.com/sdd/kiddo_v1)

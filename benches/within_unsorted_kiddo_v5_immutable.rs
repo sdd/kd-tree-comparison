@@ -7,11 +7,11 @@ use criterion::{
 };
 use rand::distributions::{Distribution, Standard};
 
-use kiddo_next::float::distance::SquaredEuclidean;
-use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
-use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_next::traits::Content;
+use Kiddo_v5::float::distance::SquaredEuclidean;
+use Kiddo_v5::float::kdtree::Axis;
+use Kiddo_v5::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
+use Kiddo_v5::immutable::float::kdtree::ImmutableKdTree;
+use Kiddo_v5::traits::Content;
 use kiddo_v3::batch_benches_parameterized;
 
 use rayon::prelude::*;
