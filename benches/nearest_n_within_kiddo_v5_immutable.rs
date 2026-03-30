@@ -4,15 +4,15 @@ use criterion::{
     black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
     PlotConfiguration, Throughput,
 };
+use kiddo_v3::batch_benches_parameterized;
+use kiddo_v5::float::distance::SquaredEuclidean;
+use kiddo_v5::float::kdtree::Axis;
+use kiddo_v5::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
+use kiddo_v5::immutable::float::kdtree::ImmutableKdTree;
+use kiddo_v5::traits::Content;
 use rand::distributions::{Distribution, Standard};
 use std::collections::HashMap;
-
-use kiddo_next::float::distance::SquaredEuclidean;
-use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
-use kiddo_next::immutable_dynamic::float::kdtree::ImmutableDynamicKdTree;
-use kiddo_next::types::Content;
-use kiddo_v3::batch_benches_parameterized;
+use std::num::NonZeroUsize;
 
 use rayon::prelude::*;
 
@@ -75,7 +75,7 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
     radius: f64,
     subtype: &str,
 ) where
-    A: LeafSliceFloat<T, K>,
+    A: LeafSliceFloat<T> + LeafSliceFloatChunk<T, K>,
     usize: Cast<T>,
     f64: Cast<A>,
     Standard: Distribution<T>,
@@ -86,7 +86,7 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
-    let kdtree = ImmutableDynamicKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
+    let kdtree = ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
 
     let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
         .into_iter()
@@ -110,7 +110,7 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
                 black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
                     point,
                     radius.az::<A>(),
-                    max_results,
+                    NonZeroUsize::new(max_results).unwrap(),
                     true,
                 ));
             });

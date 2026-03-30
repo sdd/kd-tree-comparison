@@ -5,13 +5,14 @@ use criterion::{
     PlotConfiguration, Throughput,
 };
 use rand::distributions::{Distribution, Standard};
+use std::num::NonZeroUsize;
 
-use kiddo_next::float::distance::SquaredEuclidean;
-use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
-use kiddo_next::immutable_dynamic::float::kdtree::ImmutableDynamicKdTree;
-use kiddo_next::types::Content;
 use kiddo_v3::batch_benches;
+use kiddo_v5::float::distance::SquaredEuclidean;
+use kiddo_v5::float::kdtree::Axis;
+use kiddo_v5::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
+use kiddo_v5::immutable::float::kdtree::ImmutableKdTree;
+use kiddo_v5::traits::Content;
 use rayon::prelude::*;
 
 const BUCKET_SIZE: usize = 32;
@@ -65,7 +66,7 @@ pub fn nearest_10(c: &mut Criterion) {
 
 fn bench_query_nearest_n_float_10<
     'a,
-    A: Axis + 'static + LeafSliceFloat<T, K>,
+    A: Axis + 'static + LeafSliceFloat<T>,
     T: Content + 'static,
     const K: usize,
 >(
@@ -73,7 +74,7 @@ fn bench_query_nearest_n_float_10<
     initial_size: usize,
     subtype: &str,
 ) where
-    A: LeafSliceFloat<T, K>,
+    A: LeafSliceFloat<T> + LeafSliceFloatChunk<T, K>,
     usize: Cast<T>,
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
@@ -83,7 +84,7 @@ fn bench_query_nearest_n_float_10<
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
-    let kdtree = ImmutableDynamicKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
+    let kdtree = ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
 
     let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
         .into_iter()
@@ -96,7 +97,7 @@ fn bench_query_nearest_n_float_10<
                 black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
                     point,
                     A::infinity(),
-                    10,
+                    NonZeroUsize::new(10).unwrap(),
                     true,
                 ));
             });
@@ -155,7 +156,7 @@ fn bench_query_nearest_n_float_100<'a, A: Axis + 'static, T: Content + 'static, 
     initial_size: usize,
     subtype: &str,
 ) where
-    A: LeafSliceFloat<T, K>,
+    A: LeafSliceFloat<T> + LeafSliceFloatChunk<T, K>,
     usize: Cast<T>,
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
@@ -165,7 +166,7 @@ fn bench_query_nearest_n_float_100<'a, A: Axis + 'static, T: Content + 'static, 
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
-    let kdtree = ImmutableDynamicKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
+    let kdtree = ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
 
     let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
         .into_iter()
@@ -178,7 +179,7 @@ fn bench_query_nearest_n_float_100<'a, A: Axis + 'static, T: Content + 'static, 
                 black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
                     point,
                     A::infinity(),
-                    100,
+                    NonZeroUsize::new(100).unwrap(),
                     true,
                 ));
             });

@@ -35,31 +35,21 @@ pub fn nearest_one(c: &mut Criterion) {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
-    batch_benches!(
-        group,
-        bench_float,
-        [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
-    );
+    // batch_benches!(
+    //     group,
+    //     bench_float,
+    //     [(f64, 2), (f64, 3), (f64, 4)],
+    //     [
+    //         (100, u16, u16),
+    //         (1_000, u16, u16),
+    //         (10_000, u16, u16),
+    //         (100_000, u32, u16),
+    //         (1_000_000, u32, u32),
+    //         (10_000_000, u32, u32)
+    //     ]
+    // );
 
-    batch_benches!(
-        group,
-        bench_float,
-        [(f32, 2), (f32, 3), (f32, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16)
-        ]
-    );
+    batch_benches!(group, bench_float, [(f64, 3)], [(10_000_000, u32, u32)]);
 
     group.finish();
 }
@@ -91,7 +81,7 @@ fn bench_query_nearest_one_float<
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(kdtree.nearest_one::<SquaredEuclidean>(point));
             });
         });

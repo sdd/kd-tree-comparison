@@ -6,12 +6,12 @@ use criterion::{
 };
 use rand::distributions::{Distribution, Standard};
 
-use kiddo_next::float::distance::SquaredEuclidean;
-use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_slice::leaf_slice::LeafSliceFloat;
-use kiddo_next::immutable_dynamic::float::kdtree::ImmutableDynamicKdTree;
-use kiddo_next::types::Content;
 use kiddo_v3::batch_benches;
+use kiddo_v5::float::distance::SquaredEuclidean;
+use kiddo_v5::float::kdtree::Axis;
+use kiddo_v5::float_leaf_slice::leaf_slice::LeafSliceFloat;
+use kiddo_v5::immutable_dynamic::float::kdtree::ImmutableKdTree;
+use kiddo_v5::types::Content;
 // use kiddo_v3::test_utils::{build_populated_tree_and_query_points_immutable_float, process_queries_immutable_float};
 use rayon::prelude::*;
 
@@ -80,7 +80,7 @@ fn bench_query_best_n_float_10<'a, A: Axis + 'static, T: Content + 'static, cons
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
-    let kdtree = ImmutableDynamicKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
+    let kdtree = ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
 
     let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
         .into_iter()

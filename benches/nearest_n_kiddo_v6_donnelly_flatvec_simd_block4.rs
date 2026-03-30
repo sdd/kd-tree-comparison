@@ -1,0 +1,115 @@
+use criterion::measurement::WallTime;
+use criterion::{
+    black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
+    PlotConfiguration, Throughput,
+};
+use rayon::prelude::*;
+
+use kiddo_v3::batch_benches;
+use kiddo_v6::kd_tree::leaf_strategies::FlatVec;
+use kiddo_v6::kd_tree::KdTree;
+use kiddo_v6::stem_strategies::{Block4, DonnellyMarkerSimd};
+use kiddo_v6::traits_unified_2::SquaredEuclidean;
+use std::num::NonZero;
+
+const BUCKET_SIZE: usize = 32;
+const QUERY_POINTS_PER_LOOP: usize = 1_000;
+
+macro_rules! bench_float_100 {
+    ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {{
+        // Use a helper function to dispatch at runtime based on type
+        #[allow(non_snake_case)]
+        fn dispatch<A: 'static>(
+            group: &mut BenchmarkGroup<WallTime>,
+            size: usize,
+            k: usize,
+            subtype: String,
+        ) {
+            use std::any::TypeId;
+            if TypeId::of::<A>() == TypeId::of::<f32>() {
+                match k {
+                    2 => {
+                        bench_query_nearest_n_f32::<2>(group, size, QUERY_POINTS_PER_LOOP, &subtype)
+                    }
+                    3 => {
+                        bench_query_nearest_n_f32::<3>(group, size, QUERY_POINTS_PER_LOOP, &subtype)
+                    }
+                    4 => {
+                        bench_query_nearest_n_f32::<4>(group, size, QUERY_POINTS_PER_LOOP, &subtype)
+                    }
+                    _ => panic!("Unsupported K value"),
+                }
+            }
+            // Block4 SIMD is only valid for f32, so we skip f64
+        }
+        dispatch::<$a>(
+            &mut $group,
+            $size,
+            $k,
+            format!("Kiddo_v6_donnelly_flatvec_simd_block4 {}", $subtype),
+        );
+    }};
+}
+
+pub fn nearest_n(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Query Nearest 100");
+    group.throughput(Throughput::Elements(QUERY_POINTS_PER_LOOP as u64));
+
+    let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
+    group.plot_config(plot_config);
+
+    // Block4 SIMD is only for f32
+    batch_benches!(
+        group,
+        bench_float_100,
+        [(f32, 2), (f32, 3), (f32, 4)],
+        [
+            (100, u16, u16),
+            (1_000, u16, u16),
+            (10_000, u16, u16),
+            (100_000, u32, u16)
+        ]
+    );
+
+    group.finish();
+}
+
+fn bench_query_nearest_n_f32<const K: usize>(
+    group: &mut BenchmarkGroup<WallTime>,
+    initial_size: usize,
+    query_point_qty: usize,
+    subtype: &str,
+) {
+    use std::array;
+    let mut points = vec![];
+    points.resize_with(initial_size, || array::from_fn(|_| rand::random::<f32>()));
+
+    // DonnellyMarkerSimd Block4 for f32: N_LEVEL_1_SUBTREES=64, N_LEVEL_2_SUBTREES=4
+    let kdtree: KdTree<
+        f32,
+        usize,
+        DonnellyMarkerSimd<Block4, 64, 4, K>,
+        FlatVec<f32, usize, K, BUCKET_SIZE>,
+        K,
+        BUCKET_SIZE,
+    > = KdTree::new_from_slice(&points);
+
+    let query_points: Vec<_> = (0..query_point_qty)
+        .map(|_| array::from_fn(|_| rand::random::<f32>()))
+        .collect();
+
+    group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
+        b.iter(|| {
+            query_points.par_iter().for_each(|point| {
+                black_box(kdtree.nearest_n::<SquaredEuclidean<f32>>(
+                    point,
+                    NonZero::new(100).unwrap(),
+                    true,
+                ));
+            });
+        });
+    });
+}
+
+criterion_group!(benches, nearest_n);
+criterion_main!(benches);

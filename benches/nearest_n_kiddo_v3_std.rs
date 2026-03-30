@@ -13,6 +13,7 @@ use kiddo_v3::fixed::distance::SquaredEuclidean as SquaredEuclideanFixed;
 use kiddo_v3::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
 use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::float::kdtree::{Axis, KdTree};
+use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
 use kiddo_v3::test_utils::{rand_data_fixed_u16_entry, rand_data_fixed_u16_point};
 use kiddo_v3::types::{Content, Index};
 use rayon::prelude::*;
@@ -109,7 +110,7 @@ fn bench_query_nearest_n_float_10<
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(kdtree.nearest_n::<SquaredEuclidean>(point, 10));
             });
         });
@@ -146,7 +147,7 @@ fn bench_query_nearest_n_fixed_10<
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(kdtree.nearest_n::<SquaredEuclideanFixed>(point, 10));
             });
         });
