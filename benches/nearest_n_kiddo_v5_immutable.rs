@@ -7,11 +7,11 @@ use criterion::{
 };
 use rand::distributions::{Distribution, Standard};
 
-use Kiddo_v5::float::distance::SquaredEuclidean;
-use Kiddo_v5::float::kdtree::Axis;
-use Kiddo_v5::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
-use Kiddo_v5::immutable::float::kdtree::ImmutableKdTree;
-use Kiddo_v5::traits::Content;
+use kiddo_v5::float::distance::SquaredEuclidean;
+use kiddo_v5::float::kdtree::Axis;
+use kiddo_v5::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
+use kiddo_v5::immutable::float::kdtree::ImmutableKdTree;
+use kiddo_v5::traits::Content;
 use kiddo_v3::batch_benches;
 use rayon::prelude::*;
 
@@ -23,7 +23,7 @@ macro_rules! bench_float_10 {
         bench_query_nearest_n_float_10::<$a, $t, $k>(
             &mut $group,
             $size,
-            &format!("Kiddo_v5_immutable {}", $subtype),
+            &format!("kiddo_v5_immutable {}", $subtype),
         );
     };
 }
@@ -110,7 +110,7 @@ macro_rules! bench_float_100 {
         bench_query_nearest_n_float_100::<$a, $t, $k>(
             &mut $group,
             $size,
-            &format!("Kiddo_v5_immutable {}", $subtype),
+            &format!("kiddo_v5_immutable {}", $subtype),
         );
     };
 }

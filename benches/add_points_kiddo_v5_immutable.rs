@@ -5,10 +5,10 @@ use criterion::{
 };
 use rand::distributions::{Distribution, Standard};
 
-use Kiddo_v5::float::kdtree::Axis;
-use Kiddo_v5::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
-use Kiddo_v5::immutable::float::kdtree::ImmutableKdTree;
-use Kiddo_v5::traits::Content;
+use kiddo_next::float::kdtree::Axis;
+use kiddo_next::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
+use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
+use kiddo_next::traits::Content;
 use kiddo_v3::batch_benches;
 
 const BUCKET_SIZE: usize = 32;
@@ -18,7 +18,7 @@ macro_rules! bench_empty_float {
         bench_add_to_empty_float::<$a, $t, $k>(
             &mut $group,
             $size,
-            &format!("Kiddo_v5_immutable {}", $subtype),
+            &format!("kiddo_v5_immutable {}", $subtype),
         );
     };
 }
