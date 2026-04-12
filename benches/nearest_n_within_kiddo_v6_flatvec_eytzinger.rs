@@ -1,17 +1,27 @@
+use std::num::NonZero;
+use std::ops::{Add, Mul};
+
 use az::{Az, Cast};
 use criterion::measurement::WallTime;
 use criterion::{
     black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
     PlotConfiguration, Throughput,
 };
-use kd_tree_comparison::batch_benches_parameterized;
-use kiddo_v5::float::distance::SquaredEuclidean;
-use kiddo_v5::float::kdtree::Axis;
-use kiddo_v5::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
-use kiddo_v5::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_v5::traits::Content;
+use fixed::traits::LossyFrom;
 use rand::distributions::{Distribution, Standard};
-use std::num::NonZero;
+
+use kd_tree_comparison::batch_benches_parameterized;
+use kiddo_v6::dist::{DistanceMetricCore, KdTreeDistanceMetric};
+use kiddo_v6::kd_tree::leaf_strategies::FlatVec;
+use kiddo_v6::kd_tree::leaf_view::TlsLeafScratch;
+use kiddo_v6::kd_tree::KdTree;
+use kiddo_v6::stem_strategies::donnelly_2_blockmarker_simd::{
+    BacktrackBlock3, BacktrackBlock4, SimdSelectBestChildBlock3,
+};
+use kiddo_v6::stem_strategies::SimdPrune;
+use kiddo_v6::traits::{Axis, Content};
+use kiddo_v6::traits_unified_2::AxisUnified;
+use kiddo_v6::{Eytzinger, SquaredEuclidean};
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 100;
@@ -23,7 +33,7 @@ macro_rules! bench_float {
             &mut $group,
             $size,
             $radius,
-            &format!("kiddo_v5_immutable {}", $subtype),
+            &format!("kiddo_v6_flatvec_eytzinger {}", $subtype),
         );
     };
 }
@@ -54,24 +64,49 @@ fn within(c: &mut Criterion) {
     group.finish();
 }
 
-fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize>(
+fn bench_query_float<
+    'a,
+    A: Axis
+        + AxisUnified<Coord = A>
+        + LossyFrom<A>
+        + SimdPrune
+        + SimdSelectBestChildBlock3
+        + BacktrackBlock3
+        + BacktrackBlock4
+        + TlsLeafScratch
+        + Add<Output = A>
+        + Mul<Output = A>
+        + 'static,
+    T: Content + 'static,
+    const K: usize,
+>(
     group: &'a mut BenchmarkGroup<WallTime>,
     initial_size: usize,
     radius: f64,
     subtype: &str,
 ) where
-    A: LeafSliceFloat<T> + LeafSliceFloatChunk<T, K>,
     usize: Cast<T>,
     f64: Cast<A>,
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
+    SquaredEuclidean<A>: KdTreeDistanceMetric<A, K>,
+    <SquaredEuclidean<A> as DistanceMetricCore<A>>::Output: AxisUnified<Coord = <SquaredEuclidean<A> as DistanceMetricCore<A>>::Output>
+        + SimdPrune
+        + SimdSelectBestChildBlock3
+        + BacktrackBlock3
+        + BacktrackBlock4
+        + TlsLeafScratch
+        + 'static,
 {
     let initial_points: Vec<_> = (0..initial_size)
         .into_iter()
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
-    let kdtree = ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&initial_points);
+    let kdtree =
+        KdTree::<A, T, Eytzinger<K>, FlatVec<A, T, K, BUCKET_SIZE>, K, BUCKET_SIZE>::new_from_slice(
+            &initial_points,
+        );
 
     let query_points: Vec<_> = (0..QUERY_POINTS_PER_LOOP)
         .into_iter()
@@ -86,9 +121,9 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.iter().for_each(|point| {
-                black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
+                black_box(kdtree.nearest_n_within::<SquaredEuclidean<A>>(
                     point,
-                    radius.az::<A>(),
+                    <SquaredEuclidean<A> as DistanceMetricCore<A>>::widen_coord(radius.az::<A>()),
                     max_results,
                     true,
                 ));

@@ -4,14 +4,22 @@ use criterion::{
     black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
     PlotConfiguration, Throughput,
 };
+use fixed::traits::LossyFrom;
 use rand::distributions::{Distribution, Standard};
+use std::ops::{Add, Mul};
 
 use kd_tree_comparison::batch_benches;
-use kiddo_v3::float::distance::SquaredEuclidean;
-use kiddo_v3::float::kdtree::Axis;
-use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
-use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_v3::types::Content;
+use kiddo_v6::dist::{DistanceMetricCore, KdTreeDistanceMetric};
+use kiddo_v6::kd_tree::leaf_strategies::FlatVec;
+use kiddo_v6::kd_tree::leaf_view::TlsLeafScratch;
+use kiddo_v6::kd_tree::KdTree;
+use kiddo_v6::stem_strategies::donnelly_2_blockmarker_simd::{
+    BacktrackBlock3, BacktrackBlock4, SimdSelectBestChildBlock3,
+};
+use kiddo_v6::stem_strategies::SimdPrune;
+use kiddo_v6::traits::{Axis, Content};
+use kiddo_v6::traits_unified_2::AxisUnified;
+use kiddo_v6::{Eytzinger, SquaredEuclidean};
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 1_000;
@@ -22,7 +30,7 @@ macro_rules! bench_float {
             &mut $group,
             $size,
             QUERY_POINTS_PER_LOOP,
-            &format!("Kiddo_v3_immutable {}", $subtype),
+            &format!("kiddo_v6_flatvec_eytzinger {}", $subtype),
         );
     };
 }
@@ -53,7 +61,17 @@ pub fn nearest_one(c: &mut Criterion) {
 
 fn bench_query_nearest_one_float<
     'a,
-    A: Axis + BestFromDists<T, 32> + 'static,
+    A: Axis
+        + AxisUnified<Coord = A>
+        + LossyFrom<A>
+        + SimdPrune
+        + SimdSelectBestChildBlock3
+        + BacktrackBlock3
+        + BacktrackBlock4
+        + TlsLeafScratch
+        + Add<Output = A>
+        + Mul<Output = A>
+        + 'static,
     T: Content + 'static,
     const K: usize,
 >(
@@ -65,11 +83,22 @@ fn bench_query_nearest_one_float<
     usize: Cast<T>,
     Standard: Distribution<T>,
     Standard: Distribution<[A; K]>,
+    SquaredEuclidean<A>: KdTreeDistanceMetric<A, K>,
+    <SquaredEuclidean<A> as DistanceMetricCore<A>>::Output: AxisUnified<Coord = <SquaredEuclidean<A> as DistanceMetricCore<A>>::Output>
+        + SimdPrune
+        + SimdSelectBestChildBlock3
+        + BacktrackBlock3
+        + BacktrackBlock4
+        + TlsLeafScratch
+        + 'static,
 {
     let mut points = vec![];
     points.resize_with(initial_size, || rand::random::<[A; K]>());
 
-    let kdtree = ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&points);
+    let kdtree =
+        KdTree::<A, T, Eytzinger<K>, FlatVec<A, T, K, BUCKET_SIZE>, K, BUCKET_SIZE>::new_from_slice(
+            &points,
+        );
 
     let query_points: Vec<_> = (0..query_point_qty)
         .into_iter()
@@ -79,7 +108,7 @@ fn bench_query_nearest_one_float<
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
             query_points.iter().for_each(|point| {
-                black_box(kdtree.nearest_one::<SquaredEuclidean>(point));
+                black_box(kdtree.nearest_one::<SquaredEuclidean<A>>(point));
             });
         });
     });

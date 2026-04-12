@@ -32,7 +32,7 @@ pub fn deserialize(c: &mut Criterion) {
     group.sample_size(10);
     group.sampling_mode(Flat);
 
-    for size in [100_000, 1_000_000, 10_000_000] {
+    for &size in kd_tree_comparison::bench_size_values() {
         bench_deserialize_f64_3d(&mut group, size, "f64 3D");
     }
 

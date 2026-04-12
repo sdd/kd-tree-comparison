@@ -3,9 +3,8 @@ use criterion::{
     black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
     PlotConfiguration, Throughput,
 };
-use kiddo_v2::batch_benches;
+use kd_tree_comparison::batch_benches;
 use rand::distributions::{Distribution, Standard};
-use rayon::prelude::*;
 
 use fnntw::Tree;
 
@@ -34,14 +33,7 @@ pub fn nearest_one(c: &mut Criterion) {
         group,
         bench_float,
         [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -69,7 +61,7 @@ fn bench_query_nearest_one_float<'a, const K: usize>(
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(tree.query_nearest(&point).unwrap());
             });
         });

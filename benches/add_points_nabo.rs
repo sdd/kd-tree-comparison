@@ -3,7 +3,7 @@ use criterion::{
     black_box, criterion_group, criterion_main, AxisScale, BatchSize, BenchmarkGroup, BenchmarkId,
     Criterion, PlotConfiguration,
 };
-use kiddo_v2::batch_benches;
+use kd_tree_comparison::batch_benches;
 use rand::distributions::{Distribution, Standard};
 use std::fmt::Debug;
 use std::ops::{AddAssign, SubAssign};
@@ -33,14 +33,7 @@ pub fn add_to_empty(c: &mut Criterion) {
         group,
         bench_empty_float,
         [(f32, 2), (f64, 2), (f32, 3), (f64, 3), (f32, 4), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     group.finish();

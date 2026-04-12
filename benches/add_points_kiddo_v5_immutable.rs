@@ -5,11 +5,11 @@ use criterion::{
 };
 use rand::distributions::{Distribution, Standard};
 
-use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
-use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_next::traits::Content;
-use kiddo_v3::batch_benches;
+use kd_tree_comparison::batch_benches;
+use kiddo_v5::float::kdtree::Axis;
+use kiddo_v5::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
+use kiddo_v5::immutable::float::kdtree::ImmutableKdTree;
+use kiddo_v5::traits::Content;
 
 const BUCKET_SIZE: usize = 32;
 
@@ -34,26 +34,14 @@ pub fn add_to_empty(c: &mut Criterion) {
         group,
         bench_empty_float,
         [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     batch_benches!(
         group,
         bench_empty_float,
         [(f32, 2), (f32, 3), (f32, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -83,9 +71,7 @@ fn bench_add_to_empty_float<A: Axis, T: Content, const K: usize>(
                 },
                 |points_to_add| {
                     black_box({
-                        ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(
-                            &points_to_add,
-                        );
+                        ImmutableKdTree::<A, T, K, BUCKET_SIZE>::new_from_slice(&points_to_add);
                     })
                 },
                 BatchSize::SmallInput,

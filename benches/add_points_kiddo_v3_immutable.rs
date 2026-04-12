@@ -5,7 +5,7 @@ use criterion::{
 };
 use rand::distributions::{Distribution, Standard};
 
-use kiddo_v3::batch_benches;
+use kd_tree_comparison::batch_benches;
 use kiddo_v3::float::kdtree::Axis;
 use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
 use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
@@ -34,26 +34,14 @@ pub fn add_to_empty(c: &mut Criterion) {
         group,
         bench_empty_float,
         [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     batch_benches!(
         group,
         bench_empty_float,
         [(f32, 2), (f32, 3), (f32, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16)
-        ]
+        profile_sizes
     );
 
     group.finish();

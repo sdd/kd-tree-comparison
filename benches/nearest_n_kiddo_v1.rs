@@ -6,7 +6,7 @@ use criterion::{
 
 use kiddo_v1::{distance::squared_euclidean, KdTree};
 
-use kiddo_v2::batch_benches;
+use kd_tree_comparison::batch_benches;
 use num_traits::Float;
 use rand::distributions::{Distribution, Standard};
 
@@ -46,14 +46,7 @@ pub fn nearest_10(c: &mut Criterion) {
         group,
         bench_float_10,
         [(f32, 2), (f64, 2), (f32, 3), (f64, 3), (f32, 4), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -70,14 +63,7 @@ pub fn nearest_100(c: &mut Criterion) {
         group,
         bench_float_100,
         [(f32, 2), (f64, 2), (f32, 3), (f64, 3), (f32, 4), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     group.finish();

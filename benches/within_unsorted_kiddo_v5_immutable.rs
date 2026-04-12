@@ -1,4 +1,3 @@
-use std::num::NonZero;
 use az::{Az, Cast};
 use criterion::measurement::WallTime;
 use criterion::{
@@ -6,15 +5,14 @@ use criterion::{
     PlotConfiguration, Throughput,
 };
 use rand::distributions::{Distribution, Standard};
+use std::num::NonZero;
 
+use kd_tree_comparison::batch_benches_parameterized;
 use kiddo_v5::float::distance::SquaredEuclidean;
 use kiddo_v5::float::kdtree::Axis;
 use kiddo_v5::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
 use kiddo_v5::immutable::float::kdtree::ImmutableKdTree;
 use kiddo_v5::traits::Content;
-use kiddo_v3::batch_benches_parameterized;
-
-use rayon::prelude::*;
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 100;
@@ -43,14 +41,7 @@ fn within_unsorted(c: &mut Criterion) {
         bench_float,
         RADIUS,
         [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     batch_benches_parameterized!(
@@ -58,12 +49,7 @@ fn within_unsorted(c: &mut Criterion) {
         bench_float,
         RADIUS,
         [(f32, 2), (f32, 3), (f32, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -95,7 +81,7 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
                     point,
                     radius.az::<A>(),

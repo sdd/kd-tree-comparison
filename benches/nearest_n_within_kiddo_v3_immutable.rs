@@ -5,16 +5,13 @@ use criterion::{
     PlotConfiguration, Throughput,
 };
 use rand::distributions::{Distribution, Standard};
-use std::collections::HashMap;
 
-use kiddo_v3::batch_benches_parameterized;
+use kd_tree_comparison::batch_benches_parameterized;
 use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::float::kdtree::Axis;
 use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
 use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
 use kiddo_v3::types::Content;
-
-use rayon::prelude::*;
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 100;
@@ -43,14 +40,7 @@ fn within(c: &mut Criterion) {
         bench_float,
         RADIUS,
         [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     batch_benches_parameterized!(
@@ -58,12 +48,7 @@ fn within(c: &mut Criterion) {
         bench_float,
         RADIUS,
         [(f32, 2), (f32, 3), (f32, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -93,20 +78,11 @@ fn bench_query_float<'a, A: Axis + 'static, T: Content + 'static, const K: usize
         .map(|_| rand::random::<[A; K]>())
         .collect();
 
-    let max_results_map = HashMap::from([
-        (100usize, 3usize),
-        (1_000, 10),
-        (10_000, 100),
-        (100_000, 100),
-        (1_000_000, 100),
-        (10_000_000, 1000),
-    ]);
+    let max_results = kd_tree_comparison::nearest_n_within_max_results(initial_size);
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
-                let max_results = *max_results_map.get(&initial_size).unwrap();
-
+            query_points.iter().for_each(|point| {
                 black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
                     point,
                     radius.az::<A>(),

@@ -5,14 +5,13 @@ use criterion::{
     PlotConfiguration, Throughput,
 };
 use rand::distributions::{Distribution, Standard};
-use rayon::prelude::*;
 
-use kiddo_next::float::distance::SquaredEuclidean;
-use kiddo_next::float::kdtree::Axis;
-use kiddo_next::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
-use kiddo_next::immutable::float::kdtree::ImmutableKdTree;
-use kiddo_next::traits::Content;
-use kiddo_v3::batch_benches;
+use kd_tree_comparison::batch_benches;
+use kiddo_v5::float::distance::SquaredEuclidean;
+use kiddo_v5::float::kdtree::Axis;
+use kiddo_v5::float_leaf_slice::leaf_slice::{LeafSliceFloat, LeafSliceFloatChunk};
+use kiddo_v5::immutable::float::kdtree::ImmutableKdTree;
+use kiddo_v5::traits::Content;
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 1_000;
@@ -39,26 +38,14 @@ pub fn nearest_one(c: &mut Criterion) {
         group,
         bench_float,
         [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     batch_benches!(
         group,
         bench_float,
         [(f32, 2), (f32, 3), (f32, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -91,7 +78,7 @@ fn bench_query_nearest_one_float<
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(kdtree.nearest_one::<SquaredEuclidean>(point));
             });
         });

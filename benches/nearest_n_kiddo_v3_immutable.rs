@@ -6,13 +6,12 @@ use criterion::{
 };
 use rand::distributions::{Distribution, Standard};
 
-use kiddo_v3::batch_benches;
+use kd_tree_comparison::batch_benches;
 use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::float::kdtree::Axis;
 use kiddo_v3::float_leaf_simd::leaf_node::BestFromDists;
 use kiddo_v3::immutable::float::kdtree::ImmutableKdTree;
 use kiddo_v3::types::Content;
-use rayon::prelude::*;
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 1_000;
@@ -38,26 +37,14 @@ pub fn nearest_10(c: &mut Criterion) {
         group,
         bench_float_10,
         [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     batch_benches!(
         group,
         bench_float_10,
         [(f32, 2), (f32, 3), (f32, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -92,7 +79,7 @@ fn bench_query_nearest_n_float_10<
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
                     point,
                     A::infinity(),
@@ -125,26 +112,14 @@ pub fn nearest_100(c: &mut Criterion) {
         group,
         bench_float_100,
         [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     batch_benches!(
         group,
         bench_float_100,
         [(f32, 2), (f32, 3), (f32, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -174,7 +149,7 @@ fn bench_query_nearest_n_float_100<'a, A: Axis + 'static, T: Content + 'static, 
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(kdtree.nearest_n_within::<SquaredEuclidean>(
                     point,
                     A::infinity(),

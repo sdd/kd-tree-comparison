@@ -8,10 +8,8 @@ use fixed::traits::Fixed;
 use fixed::types::extra::{Unsigned, U16};
 use fixed::FixedU16;
 use rand::distributions::{Distribution, Standard};
-use rayon::iter::ParallelIterator;
-use rayon::prelude::IntoParallelRefIterator;
 
-use kiddo_v3::batch_benches;
+use kd_tree_comparison::batch_benches;
 use kiddo_v3::fixed::distance::SquaredEuclidean as SquaredEuclideanFixed;
 use kiddo_v3::fixed::kdtree::{Axis as AxisFixed, KdTree as KdTreeFixed};
 use kiddo_v3::float::distance::SquaredEuclidean;
@@ -55,25 +53,13 @@ pub fn best_10(c: &mut Criterion) {
         group,
         bench_float_10,
         [(f32, 2), (f64, 2), (f32, 3), (f64, 3), (f32, 4), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32)
-        ]
+        profile_sizes
     );
     batch_benches!(
         group,
         bench_fixed_10,
         [(FXP, 2), (FXP, 3), (FXP, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -109,7 +95,7 @@ fn bench_query_best_n_float_10<
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(
                     kdtree
                         .best_n_within::<SquaredEuclidean>(point, 0.05f64.az::<A>(), 10)
@@ -150,7 +136,7 @@ fn bench_query_best_n_fixed_10<
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(
                     kdtree
                         .best_n_within::<SquaredEuclideanFixed>(

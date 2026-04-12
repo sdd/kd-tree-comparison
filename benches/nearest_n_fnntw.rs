@@ -3,9 +3,8 @@ use criterion::{
     black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
     PlotConfiguration, Throughput,
 };
-use kiddo_v2::batch_benches;
+use kd_tree_comparison::batch_benches;
 use rand::distributions::{Distribution, Standard};
-use rayon::prelude::*;
 
 use fnntw::Tree;
 
@@ -45,14 +44,7 @@ pub fn nearest_10(c: &mut Criterion) {
         group,
         bench_float_10,
         [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -69,14 +61,7 @@ pub fn nearest_100(c: &mut Criterion) {
         group,
         bench_float_100,
         [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -104,7 +89,7 @@ fn bench_query_nearest_10_float<'a, const K: usize>(
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(tree.query_nearest_k(&point, 10).unwrap());
             });
         });
@@ -133,7 +118,7 @@ fn bench_query_nearest_100_float<'a, const K: usize>(
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(tree.query_nearest_k(&point, 100).unwrap());
             });
         });

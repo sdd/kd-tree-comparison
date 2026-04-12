@@ -6,7 +6,7 @@ use criterion::{
 };
 use fixed::types::extra::{LeEqU16, Unsigned, U16};
 use fixed::FixedU16;
-use kiddo_v3::batch_benches_parameterized;
+use kd_tree_comparison::batch_benches_parameterized;
 use rand::distributions::{Distribution, Standard};
 
 use kiddo_v3::fixed::distance::SquaredEuclidean as SquaredEuclideanFixed;
@@ -15,7 +15,6 @@ use kiddo_v3::float::distance::SquaredEuclidean;
 use kiddo_v3::float::kdtree::{Axis, KdTree};
 use kiddo_v3::test_utils::{rand_data_fixed_u16_entry, rand_data_fixed_u16_point};
 use kiddo_v3::types::{Content, Index};
-use rayon::prelude::*;
 
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 100;
@@ -57,28 +56,14 @@ fn within_unsorted(c: &mut Criterion) {
         bench_float,
         RADIUS,
         [(f32, 2), (f64, 2), (f64, 3), (f64, 4), (f32, 3), (f32, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
     batch_benches_parameterized!(
         group,
         bench_fixed,
         RADIUS,
         [(FXP, 2), (FXP, 3), (FXP, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -115,7 +100,7 @@ fn bench_query_float<
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(kdtree.within_unsorted::<SquaredEuclidean>(point, radius.az::<A>()));
             });
         });
@@ -154,7 +139,7 @@ fn bench_query_fixed<
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 black_box(kdtree.within_unsorted::<SquaredEuclideanFixed>(
                     point,
                     FixedU16::<A>::from_num(radius),

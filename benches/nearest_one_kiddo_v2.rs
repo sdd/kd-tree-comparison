@@ -7,9 +7,8 @@ use criterion::{
 use fixed::types::extra::{Unsigned, U16};
 use fixed::FixedU16;
 use rand::distributions::{Distribution, Standard};
-use rayon::prelude::*;
 
-use kiddo_v2::batch_benches;
+use kd_tree_comparison::batch_benches;
 use kiddo_v2::fixed::distance::squared_euclidean as squared_euclidean_fixed;
 use kiddo_v2::fixed::kdtree::{Axis as AxisFixed, KdTree as FixedKdTree};
 use kiddo_v2::float::distance::squared_euclidean;
@@ -56,13 +55,7 @@ pub fn nearest_one(c: &mut Criterion) {
         group,
         bench_float,
         [(f64, 2), (f64, 3), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32)
-        ]
+        profile_sizes
     );
     // batch_benches!(
     //     group,
@@ -111,7 +104,7 @@ fn bench_query_nearest_one_float<
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 // black_box(kdtree.nearest_one::<SquaredEuclidean>(point));
                 black_box(kdtree.nearest_one(point, &squared_euclidean));
             });
@@ -150,7 +143,7 @@ fn bench_query_nearest_one_fixed<
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
+            query_points.iter().for_each(|point| {
                 // black_box(kdtree.nearest_one::<SquaredEuclideanFixed>(point));
                 black_box(kdtree.nearest_one(point, &squared_euclidean_fixed));
             });

@@ -4,10 +4,8 @@ use criterion::{
     black_box, criterion_group, criterion_main, AxisScale, BenchmarkGroup, BenchmarkId, Criterion,
     PlotConfiguration, Throughput,
 };
-use kiddo_v2::batch_benches;
+use kd_tree_comparison::batch_benches;
 use rand::distributions::{Distribution, Standard};
-use rayon::prelude::*;
-use std::collections::HashMap;
 use std::fmt::Debug;
 use std::ops::{AddAssign, SubAssign};
 
@@ -19,7 +17,6 @@ use num_traits::Float;
 const BUCKET_SIZE: usize = 32;
 const QUERY_POINTS_PER_LOOP: usize = 100;
 const RADIUS: f64 = 0.01;
-const MAX_RESULTS: u32 = 32000;
 
 macro_rules! bench_float {
     ($group:ident, $a:ty, $t:ty, $k:tt, $idx: ty, $size:tt, $subtype: expr) => {
@@ -43,14 +40,7 @@ pub fn within(c: &mut Criterion) {
         group,
         bench_float,
         [(f32, 2), (f64, 2), (f32, 3), (f64, 3), (f32, 4), (f64, 4)],
-        [
-            (100, u16, u16),
-            (1_000, u16, u16),
-            (10_000, u16, u16),
-            (100_000, u32, u16),
-            (1_000_000, u32, u32),
-            (10_000_000, u32, u32)
-        ]
+        profile_sizes
     );
 
     group.finish();
@@ -87,20 +77,11 @@ fn bench_query_float<
         sort_results: true,
     };
 
-    let max_results_map = HashMap::from([
-        (100usize, 3u32),
-        (1_000, 10),
-        (10_000, 100),
-        (100_000, 100),
-        (1_000_000, 100),
-        (10_000_000, 1000),
-    ]);
+    let max_results = kd_tree_comparison::nearest_n_within_max_results(initial_size) as u32;
 
     group.bench_function(BenchmarkId::new(subtype, initial_size), |b| {
         b.iter(|| {
-            query_points.par_iter().for_each(|point| {
-                let max_results = *max_results_map.get(&initial_size).unwrap();
-                // println!("max results for {} is {}", initial_size, max_results);
+            query_points.iter().for_each(|point| {
                 black_box(tree.knn_advanced(
                     max_results,
                     &point,
