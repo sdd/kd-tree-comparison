@@ -2,6 +2,7 @@
 name = "kd-tree-comparison"
 version = "0.1.0"
 edition = "2021"
+autobins = false
 autobenches = false
 
 [dependencies]
@@ -15,7 +16,7 @@ kiddo_v1 = { version = "0.2", package = "kiddo", optional = true }
 kiddo_v2 = { version = "2.1.1", package = "kiddo", optional = true }
 kiddo_v3 = { version = "3.0.0", package = "kiddo", features = ["immutable"], optional = true }
 kiddo_v5 = { version = "5.0.0", package = "kiddo", features = ["simd"], optional = true }
-kiddo_v6 = { path = "../kiddo", package = "kiddo", features = ["simd", "test_utils"], optional = true }
+kiddo_v6 = { path = "../kiddo", package = "kiddo", features = ["logging_off", "simd", "test_utils"], optional = true }
 memmap = "0.7.0"
 nabo = { version = "0.2", optional = true }
 num-traits = "0.2.15"
@@ -90,6 +91,9 @@ query-within-unsorted = []
 query-nearest-n-within = []
 query-nearest-n-within-unsorted = []
 
+# Opt-in binaries.
+bin-profile-nearest-n-within = []
+
 # Dimension selectors.
 dims-any = []
 dims-2 = ["dims-any"]
@@ -99,6 +103,11 @@ dims-all = ["dims-2", "dims-3", "dims-4"]
 
 [lib]
 name = "kd_tree_comparison"
+
+[[bin]]
+name = "profile_nearest_n_within"
+path = "src/bin/profile_nearest_n_within.rs"
+required-features = ["bin-profile-nearest-n-within", "dims-3"]
 
 [[bench]]
 name = "add_points_fnntw"
