@@ -16,7 +16,7 @@ kiddo_v1 = { version = "0.2", package = "kiddo", optional = true }
 kiddo_v2 = { version = "2.1.1", package = "kiddo", optional = true }
 kiddo_v3 = { version = "3.0.0", package = "kiddo", features = ["immutable"], optional = true }
 kiddo_v5 = { version = "5.0.0", package = "kiddo", features = ["simd"], optional = true }
-kiddo_v6 = { path = "../kiddo", package = "kiddo", features = ["logging_off", "simd", "test_utils"], optional = true }
+kiddo_v6 = { path = "../kiddo", package = "kiddo", features = ["huge_pages", "logging_off", "simd", "test_utils"], optional = true }
 memmap = "0.7.0"
 nabo = { version = "0.2", optional = true }
 num-traits = "0.2.15"
@@ -38,6 +38,7 @@ all-trees = [
     "tree-kiddo-v3-immutable",
     "tree-kiddo-v3-std",
     "tree-kiddo-v5-immutable",
+    "tree-kiddo-v5-std",
     "tree-kiddo-v6-flatvec-eytzinger",
     "tree-kiddo-v6-vecofarrays-eytzinger",
     "tree-kiddo-v6-vecofarenas-eytzinger",
@@ -58,6 +59,7 @@ tree-kiddo-v2 = ["dep:kiddo_v2"]
 tree-kiddo-v3-immutable = ["dep:kiddo_v3"]
 tree-kiddo-v3-std = ["dep:kiddo_v3"]
 tree-kiddo-v5-immutable = ["dep:kiddo_v3", "dep:kiddo_v5"]
+tree-kiddo-v5-std = ["dep:kiddo_v5"]
 tree-kiddo-v6-flatvec-eytzinger = ["dep:kiddo_v6"]
 tree-kiddo-v6-vecofarrays-eytzinger = ["dep:kiddo_v6"]
 tree-kiddo-v6-vecofarenas-eytzinger = ["dep:kiddo_v6"]
@@ -74,6 +76,7 @@ tree-sklearn = ["dep:kiddo_v2"]
 # Query selectors.
 all-queries = [
     "query-add-points",
+    "query-approx-nearest-one",
     "query-best-n",
     "query-nearest-one",
     "query-nearest-n",
@@ -83,6 +86,7 @@ all-queries = [
     "query-nearest-n-within-unsorted",
 ]
 query-add-points = []
+query-approx-nearest-one = []
 query-best-n = []
 query-nearest-one = []
 query-nearest-n = []
@@ -94,12 +98,32 @@ query-nearest-n-within-unsorted = []
 # Opt-in binaries.
 bin-profile-nearest-n-within = []
 
+# Dedicated long-running comparative benchmark matrix.
+bench-kiddo-v6-comparative = [
+    "tree-kiddo-v3-immutable",
+    "tree-kiddo-v3-std",
+    "tree-kiddo-v5-immutable",
+    "tree-kiddo-v5-std",
+    "dep:kiddo_v6",
+    "query-approx-nearest-one",
+    "query-nearest-one",
+    "query-nearest-n-within",
+    "query-within-unsorted",
+]
+
 # Dimension selectors.
 dims-any = []
 dims-2 = ["dims-any"]
 dims-3 = ["dims-any"]
 dims-4 = ["dims-any"]
 dims-all = ["dims-2", "dims-3", "dims-4"]
+
+[profile.bench]
+opt-level = 2
+lto = "fat"
+codegen-units = 1
+incremental = false
+debug = false
 
 [lib]
 name = "kd_tree_comparison"
@@ -462,6 +486,11 @@ required-features = [
     "query-nearest-n-within",
     "dims-any",
 ]
+
+[[bench]]
+name = "kiddo_v6_comparative"
+harness = false
+required-features = ["bench-kiddo-v6-comparative", "dims-any"]
 
 [[bench]]
 name = "within_kiddo_v3_immutable"

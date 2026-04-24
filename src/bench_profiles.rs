@@ -1,5 +1,6 @@
 use std::env;
 
+pub const BENCH_DIMS_ENV: &str = "KD_TREE_BENCH_DIMS";
 pub const BENCH_SIZE_PROFILE_ENV: &str = "KD_TREE_SIZE_PROFILE";
 
 const SMOKE_SIZES: &[usize] = &[1_024, 16_384, 262_144, 4_194_304];
@@ -23,6 +24,55 @@ pub enum BenchSizeProfile {
     Full,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct BenchDims {
+    dim2: bool,
+    dim3: bool,
+    dim4: bool,
+}
+
+impl BenchDims {
+    const fn default() -> Self {
+        Self {
+            dim2: false,
+            dim3: true,
+            dim4: false,
+        }
+    }
+
+    const fn all() -> Self {
+        Self {
+            dim2: true,
+            dim3: true,
+            dim4: true,
+        }
+    }
+
+    pub const fn contains(self, dimension: usize) -> bool {
+        match dimension {
+            2 => self.dim2,
+            3 => self.dim3,
+            4 => self.dim4,
+            _ => false,
+        }
+    }
+
+    fn enable(&mut self, dimension: usize) -> Result<(), String> {
+        match dimension {
+            2 => self.dim2 = true,
+            3 => self.dim3 = true,
+            4 => self.dim4 = true,
+            _ => {
+                return Err(format!(
+                    "Invalid {BENCH_DIMS_ENV} dimension `{dimension}`. Expected only 2, 3, or 4."
+                ))
+            }
+        }
+
+        Ok(())
+    }
+}
+
 impl BenchSizeProfile {
     pub fn as_str(self) -> &'static str {
         match self {
@@ -30,6 +80,54 @@ impl BenchSizeProfile {
             Self::Standard => "standard",
             Self::Extended => "extended",
             Self::Full => "full",
+        }
+    }
+}
+
+pub fn parse_bench_dims(value: &str) -> Result<BenchDims, String> {
+    let value = value.trim();
+
+    if value.is_empty() || value.eq_ignore_ascii_case("default") {
+        return Ok(BenchDims::default());
+    }
+
+    if value.eq_ignore_ascii_case("all") {
+        return Ok(BenchDims::all());
+    }
+
+    let mut dims = BenchDims {
+        dim2: false,
+        dim3: false,
+        dim4: false,
+    };
+
+    for token in value.split(',') {
+        let token = token.trim();
+
+        if token.is_empty() {
+            return Err(format!(
+                "Invalid {BENCH_DIMS_ENV} value `{value}`. Expected a comma-separated selection from 2, 3, 4, or `all`."
+            ));
+        }
+
+        let dimension = token.parse::<usize>().map_err(|_| {
+            format!(
+                "Invalid {BENCH_DIMS_ENV} value `{value}`. Expected a comma-separated selection from 2, 3, 4, or `all`."
+            )
+        })?;
+
+        dims.enable(dimension)?;
+    }
+
+    Ok(dims)
+}
+
+pub fn bench_dims() -> BenchDims {
+    match env::var(BENCH_DIMS_ENV) {
+        Ok(value) => parse_bench_dims(&value).unwrap_or_else(|message| panic!("{message}")),
+        Err(env::VarError::NotPresent) => BenchDims::default(),
+        Err(env::VarError::NotUnicode(_)) => {
+            panic!("{BENCH_DIMS_ENV} must be valid UTF-8")
         }
     }
 }
@@ -70,12 +168,14 @@ pub fn bench_size_values_for_profile(profile: BenchSizeProfile) -> &'static [usi
 }
 
 pub fn bench_dimension_enabled(dimension: usize) -> bool {
-    match dimension {
+    let compiled = match dimension {
         2 => cfg!(feature = "dims-2"),
         3 => cfg!(feature = "dims-3"),
         4 => cfg!(feature = "dims-4"),
         _ => false,
-    }
+    };
+
+    compiled && bench_dims().contains(dimension)
 }
 
 pub fn nearest_n_within_max_results(initial_size: usize) -> usize {
@@ -269,7 +369,7 @@ macro_rules! batch_benches_parameterized {
 mod tests {
     use super::{
         bench_dimension_enabled, bench_size_values_for_profile, nearest_n_within_max_results,
-        parse_bench_size_profile, BenchSizeProfile,
+        parse_bench_dims, parse_bench_size_profile, BenchDims, BenchSizeProfile,
     };
 
     #[test]
@@ -294,6 +394,25 @@ mod tests {
             parse_bench_size_profile("default").unwrap(),
             BenchSizeProfile::Standard
         );
+    }
+
+    #[test]
+    fn parses_dimension_selection() {
+        assert_eq!(parse_bench_dims("").unwrap(), BenchDims::default());
+        assert_eq!(parse_bench_dims("default").unwrap(), BenchDims::default());
+        assert_eq!(parse_bench_dims("all").unwrap(), BenchDims::all());
+
+        let dims = parse_bench_dims("2, 4").unwrap();
+        assert!(dims.contains(2));
+        assert!(!dims.contains(3));
+        assert!(dims.contains(4));
+    }
+
+    #[test]
+    fn rejects_invalid_dimension_selection() {
+        assert!(parse_bench_dims("1").is_err());
+        assert!(parse_bench_dims("2,,3").is_err());
+        assert!(parse_bench_dims("three").is_err());
     }
 
     #[test]
